@@ -24,7 +24,7 @@ public class IssueResource {
      *      title: "Issue Title",
      *      description: "Title Description", 
      *      createdAt: 12323453423,
-     *      createdBy: "homer.simpson@acme.com",
+     *      reportedBy: "homer.simpson@acme.com",
      *      occuredIn: { product: "supper-app", version: "1.2.10" }
      *      fixedIn: undefined,
      *      status: "OPEN",
@@ -42,7 +42,7 @@ public class IssueResource {
      *      title: "Issue Title",
      *      description: "Title Description", 
      *      createdAt: 12323453423,
-     *      createdBy: "homer.simpson@acme.com",
+     *      reportedBy: "homer.simpson@acme.com",
      *      assignedTo: undefined,
      *      occuredIn: { product: "supper-app", version: "1.2.10" }
      *      fixedIn: undefined,
