@@ -36,6 +36,7 @@ public class Issue {
     private Resolution resolution;
     
     private ParticipantID reportedBy;
+    private ParticipantID assignedTo;
     
 //    public void renameTo(String newName);
 //    public void updateDescription(String newDescription);    

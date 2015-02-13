@@ -59,7 +59,9 @@ public class TomEEApplication {
     }
 
     public static void run(Class<?>... clazzes) {
-        run(ShrinkWrap.create(WebArchive.class).addClasses(clazzes));
+        run(ShrinkWrap.create(WebArchive.class)
+                .addClasses(clazzes)
+                .addAsWebInfResource("META-INF/beans.xml", "beans.xml"));
     }
 
     public static void run(WebArchive archive) {
