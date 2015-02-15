@@ -14,7 +14,7 @@ import javax.persistence.PersistenceContext;
 import org.junit.After;
 import org.junit.Before;
 
-public class DatabaseIntegrationTest {
+public abstract class DatabaseIntegrationTest {
 
     private EJBContainer container;
     private Context context;
@@ -60,7 +60,7 @@ public class DatabaseIntegrationTest {
     
     @SuppressWarnings("unchecked")
     protected <T> T lookup(Class<T> clazz) throws NamingException {
-        return (T) context.lookup("java:global/issues-ddd/" + clazz.getSimpleName());
+        return (T) context.lookup("java:global/ddd-issues/" + clazz.getSimpleName());
     }
 
     protected void flushAndClear() {
