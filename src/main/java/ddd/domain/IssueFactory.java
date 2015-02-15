@@ -1,19 +1,22 @@
 package ddd.domain;
 
+import javax.inject.Inject;
+
 public class IssueFactory {
 
 //    private LoggedInParticipant loggedInParticipant;
-//    private Clock clock;
-//    private IssueNumberSequence sequence;
+    @Inject
+    private Clock clock;
+    @Inject
+    private IssueNumberSequence sequence;
     
     public Issue newBug(String title, String description, ProductVersion occuredIn){
 
 //      ParticipantID reportedBy = loggedInParticipant.participantID();        
-//      Issue newIssue = new Issue(sequence.nextNumber(), reportedBy, occuredIn, clock.time());
-//      newIssue.renameTo(title);
+      Issue newIssue = new Issue(sequence.nextNumber(), "", occuredIn, clock.time());
+      newIssue.renameTo(title);
 //      newIssue.updateDescription(description);        
-//      return newIssue;
-        return null;
+      return newIssue;
     }
     
 }

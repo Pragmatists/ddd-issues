@@ -7,7 +7,7 @@ public class IssueNumberIsValueObject extends ValueObjectContractTest {
 
     @Override
     protected Object instance() {
-        return $(new IssueNumber(42));
+        return new IssueNumber(42);
     }
 
     @Override

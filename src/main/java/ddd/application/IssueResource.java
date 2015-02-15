@@ -1,7 +1,23 @@
 package ddd.application;
 
+import ddd.domain.Issue;
+import ddd.domain.IssueFactory;
+import ddd.domain.IssueRepository;
+import ddd.domain.ProductVersion;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+@Stateless
 public class IssueResource {
 
+    @Inject
+    private IssueFactory factory;
+    @Inject
+    private IssueRepository repository;
     /* 
      * POST /issues 
      * 
@@ -14,6 +30,24 @@ public class IssueResource {
      *  
      *  Resp: 201 Created, Location: /issues/23
      */
+
+    public void create(IssueJson issueJson) throws URISyntaxException {
+        Issue issue = factory.newBug(issueJson.title, issueJson.descripton, new ProductVersion());
+        repository.store(issue);
+        Response.created(new URI("/issue" + issue.id()));
+    }
+
+    static class IssueJson{
+        String title;
+        String descripton;
+
+        OccurrenceJson occurrenceIn;
+    }
+
+    static class OccurrenceJson {
+        String product;
+        String version;
+    }
     
     /* 
      * GET /issues 
