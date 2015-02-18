@@ -4,16 +4,13 @@ import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 
-import ddd.infrastructure.JpaFooRepository;
+import ddd.domain.Greetings;
 
 public class IssuesResourceTest extends EndToEndTest {
 
-    JpaFooRepository repository;
-
     @Test
-    public void shouldLookupBean() throws Exception {
-        repository = lookup(JpaFooRepository.class);
-        assertThat(repository).isNotNull();
+    public void shouldLookupGreetings() throws Exception {
+        assertThat(lookup(Greetings.class)).isNotNull();
     }
 
     @Test
