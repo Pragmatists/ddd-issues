@@ -2,19 +2,34 @@ package ddd.infrastructure;
 
 import java.io.File;
 import java.nio.file.Files;
+import javax.naming.NamingException;
 
 import org.apache.tomee.embedded.Configuration;
 import org.apache.tomee.embedded.Container;
-import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 
+import ddd.application.HelloResource;
+import ddd.domain.Greetings;
+
 public class TomEEApplication {
 
-    private static void startAndDeploy(Archive<?> archive) {
+    private Container container;
 
-        Container container;
+    private final WebArchive archive;
+
+    private TomEEApplication(Class<?>... classes) {
+        archive = ShrinkWrap.create(WebArchive.class);
+        archive.addClasses(classes);
+        archive.addAsWebInfResource("META-INF/beans.xml", "beans.xml");
+    }
+
+    public static TomEEApplication application() {
+        return new TomEEApplication(HelloResource.class, Greetings.class);
+    }
+
+    public void start() {
 
         try {
             Configuration configuration = new Configuration();
@@ -33,14 +48,24 @@ public class TomEEApplication {
             container.start();
 
             container.deploy("app", target);
-            container.await();
-
+            registerShutdownHook(container);
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
+    }
 
-        registerShutdownHook(container);
+    public void await() {
+        container.await();
+    }
 
+    public void stop() {
+        if (container != null) {
+            try {
+                container.stop();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     private static void registerShutdownHook(final Container container) {
@@ -58,13 +83,11 @@ public class TomEEApplication {
         });
     }
 
-    public static void run(Class<?>... clazzes) {
-        run(ShrinkWrap.create(WebArchive.class)
-                .addClasses(clazzes)
-                .addAsWebInfResource("META-INF/beans.xml", "beans.xml"));
-    }
-
-    public static void run(WebArchive archive) {
-        startAndDeploy(archive);
+    public <T> T lookup(Class<T> clazz) {
+        try {
+            return (T) container.getAppContexts("app").getGlobalJndiContext().lookup("global/app/" + clazz.getSimpleName());
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -1,17 +1,19 @@
 package ddd.application;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
+
 import ddd.domain.Issue;
 import ddd.domain.IssueFactory;
 import ddd.domain.IssueRepository;
 import ddd.domain.ProductVersion;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-import java.net.URI;
-import java.net.URISyntaxException;
-
 @Stateless
+@Path("/issues")
 public class IssueResource {
 
     @Inject
@@ -34,7 +36,7 @@ public class IssueResource {
     public void create(IssueJson issueJson) throws URISyntaxException {
         Issue issue = factory.newBug(issueJson.title, issueJson.descripton, new ProductVersion());
         repository.store(issue);
-        Response.created(new URI("/issue" + issue.id()));
+        Response.created(new URI(String.format("/issue/%s", issue.number())));
     }
 
     static class IssueJson{

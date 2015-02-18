@@ -28,7 +28,7 @@ public class IssueNumber {
 
     @Override
     public String toString() {
-        return String.format("Issue #%s", value);
+        return String.valueOf(value);
     }
 
     public int value() {

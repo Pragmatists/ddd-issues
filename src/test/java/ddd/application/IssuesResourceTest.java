@@ -1,32 +1,24 @@
 package ddd.application;
 
-import ddd.infrastructure.DatabaseIntegrationTest;
-import ddd.infrastructure.JpaFooRepository;
-import org.junit.Before;
+import static org.assertj.core.api.Assertions.*;
+
 import org.junit.Test;
 
-import javax.naming.NamingException;
+import ddd.infrastructure.JpaFooRepository;
 
-public class IssuesResourceTest extends DatabaseIntegrationTest {
+public class IssuesResourceTest extends EndToEndTest {
 
     JpaFooRepository repository;
 
-    IssueResource resource;
-
-
-    @Before
-    public void setUp() throws NamingException {
-        resource = lookup(IssueResource.class);
+    @Test
+    public void shouldLookupBean() throws Exception {
         repository = lookup(JpaFooRepository.class);
+        assertThat(repository).isNotNull();
     }
 
     @Test
-    public void shouldCreateIssue() throws Exception {
-        IssueResource.IssueJson request = new IssueResource.IssueJson();
-        request.title = "Title";
+    public void shouldLookupHelloResource() {
+        assertThat(lookup(HelloResource.class)).isNotNull();
 
-        resource.create(request);
-
-//        repository.load();
     }
 }

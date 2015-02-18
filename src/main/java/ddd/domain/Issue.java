@@ -1,8 +1,8 @@
 package ddd.domain;
 
+import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import java.util.Date;
 
 @Entity
 public class Issue {
@@ -56,10 +56,6 @@ public class Issue {
 
     public IssueNumber number() {
         return number;
-    }
-
-    public int id() {
-        return number.value();
     }
 
 
