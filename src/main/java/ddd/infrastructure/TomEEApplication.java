@@ -2,7 +2,6 @@ package ddd.infrastructure;
 
 import java.io.File;
 import java.nio.file.Files;
-import javax.naming.NamingException;
 
 import org.apache.tomee.embedded.Configuration;
 import org.apache.tomee.embedded.Container;
@@ -48,7 +47,6 @@ public class TomEEApplication {
             container.start();
 
             container.deploy("app", target);
-            registerShutdownHook(container);
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
@@ -68,26 +66,4 @@ public class TomEEApplication {
         }
     }
 
-    private static void registerShutdownHook(final Container container) {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                try {
-                    if (container != null) {
-                        container.stop();
-                    }
-                } catch (final Exception e) {
-                    throw new IllegalArgumentException(e);
-                }
-            }
-        });
-    }
-
-    public <T> T lookup(Class<T> clazz) {
-        try {
-            return (T) container.getAppContexts("app").getGlobalJndiContext().lookup("global/app/" + clazz.getSimpleName());
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
