@@ -10,7 +10,11 @@ import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 
 import ddd.application.HelloResource;
+import ddd.application.IssueResource;
 import ddd.domain.Greetings;
+import ddd.domain.IssueFactory;
+import ddd.domain.IssueRepository;
+import ddd.domain.JpaIssueRepository;
 
 public class TomEEApplication {
 
@@ -21,11 +25,13 @@ public class TomEEApplication {
     private TomEEApplication(Class<?>... classes) {
         archive = ShrinkWrap.create(WebArchive.class);
         archive.addClasses(classes);
-        archive.addAsWebInfResource("META-INF/beans.xml", "beans.xml");
+        archive.addAsWebInfResource("beans.xml", "beans.xml");
+        archive.addAsManifestResource("META-INF/persistence.xml", "persistence.xml");
     }
 
     public static TomEEApplication application() {
-        return new TomEEApplication(HelloResource.class, Greetings.class);
+        return new TomEEApplication(HelloResource.class, Greetings.class, IssueResource.class, IssueFactory.class, IssueRepository.class,
+                InMemoryIssueNumberSequence.class, JpaIssueRepository.class, ClockImpl.class);
     }
 
     public void start() {

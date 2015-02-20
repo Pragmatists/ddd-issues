@@ -4,6 +4,8 @@
     <jta-data-source>issuesDatabase</jta-data-source>
     <non-jta-data-source>issuesDatabaseUnmanaged</non-jta-data-source>
     <class>ddd.infrastructure.Foo</class>
+    <class>ddd.domain.Issue</class>
+    <class>ddd.domain.IssueNumber</class>
     <properties>
       <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
     </properties>

@@ -4,8 +4,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import ddd.domain.Issue;
 import ddd.domain.IssueFactory;
@@ -18,6 +24,7 @@ public class IssueResource {
 
     @Inject
     private IssueFactory factory;
+
     @Inject
     private IssueRepository repository;
     /* 
@@ -33,21 +40,28 @@ public class IssueResource {
      *  Resp: 201 Created, Location: /issues/23
      */
 
-    public void create(IssueJson issueJson) throws URISyntaxException {
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response create(IssueJson issueJson) throws URISyntaxException {
         Issue issue = factory.newBug(issueJson.title, issueJson.descripton, new ProductVersion());
         repository.store(issue);
-        Response.created(new URI(String.format("/issue/%s", issue.number())));
+        return Response.created(new URI(String.format("/issues/%s", issue.number()))).build();
     }
 
-    static class IssueJson{
-        String title;
-        String descripton;
+    @XmlRootElement(name = "IssueJson")
+    static class IssueJson {
+        String title = "";
 
-        OccurrenceJson occurrenceIn;
+        String descripton = "";
+
+                OccurrenceJson occurrenceIn;
     }
 
     static class OccurrenceJson {
         String product;
+
         String version;
     }
     
@@ -87,5 +101,5 @@ public class IssueResource {
      *      relatedIssues: []
      *  } 
      */
-    
+
 }

@@ -1,8 +1,14 @@
 package ddd.domain;
 
+import javax.persistence.Embeddable;
+
+@Embeddable
 public class IssueNumber {
 
-    private final int value;
+    private int value;
+
+    public IssueNumber() {
+    }
 
     public IssueNumber(int value) {
         this.value = value;

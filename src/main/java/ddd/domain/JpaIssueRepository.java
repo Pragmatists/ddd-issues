@@ -1,9 +1,8 @@
 package ddd.domain;
 
-import javax.inject.Inject;
+import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.Optional;
 
 public class JpaIssueRepository implements IssueRepository {
 

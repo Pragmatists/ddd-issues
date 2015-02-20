@@ -1,8 +1,8 @@
 package ddd.domain;
 
 import java.util.Date;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 
 @Entity
 public class Issue {
@@ -28,21 +28,21 @@ public class Issue {
 
     }
 
-    @Id
+    @EmbeddedId
     private IssueNumber number;
     private String title;
     private String description;
 
     private Date createdAt;
 
-    private ProductVersion occuredIn;
-    private ProductVersion fixedIn;
+//    private ProductVersion occuredIn;
+//    private ProductVersion fixedIn;
 
-    private Status status;
-    private Resolution resolution;
+//    private Status status;
+//    private Resolution resolution;
 
-    private ParticipantID reportedBy;
-    private ParticipantID assignedTo;
+//    private ParticipantID reportedBy;
+//    private ParticipantID assignedTo;
 
     public Issue() {
     }
@@ -50,7 +50,7 @@ public class Issue {
     public Issue(IssueNumber number, String title, ProductVersion occuredIn, Date createdAt) {
         this.number = number;
         this.title = title;
-        this.occuredIn = occuredIn;
+//        this.occuredIn = occuredIn;
         this.createdAt = createdAt;
     }
 
