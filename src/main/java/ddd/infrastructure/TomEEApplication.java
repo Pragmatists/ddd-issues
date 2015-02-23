@@ -23,14 +23,15 @@ public class TomEEApplication {
 
     private TomEEApplication(Class<?>... classes) {
         archive = ShrinkWrap.create(WebArchive.class);
-        archive.addClasses(classes);
+//        archive.addClasses(classes);
+        archive.addPackages(true, "ddd");
         archive.addAsWebInfResource("beans.xml", "beans.xml");
         archive.addAsManifestResource("META-INF/persistence.xml", "persistence.xml");
     }
 
     public static TomEEApplication application() {
         return new TomEEApplication(HelloResource.class, Greetings.class, IssueResource.class, IssueFactory.class, IssueRepository.class,
-                JpaIssueNumberSequence.class, JpaIssueRepository.class, DateUtilClock.class);
+                JpaIssueNumberSequence.class, JpaIssueRepository.class, DateUtilClock.class, JpaIssues.class);
     }
 
     public void start() {

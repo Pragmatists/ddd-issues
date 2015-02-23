@@ -6,6 +6,8 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import org.junit.Test;
 
@@ -13,17 +15,26 @@ import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 
 import ddd.domain.Issue;
+import ddd.domain.IssueFactory;
 import ddd.domain.IssueNumber;
 import ddd.domain.IssueRepository;
 import ddd.domain.ProductID;
 import ddd.domain.ProductVersion;
+import ddd.infrastructure.DatabaseIntegrationTest;
 
 public class IssuesResourceTest extends EndToEndTest {
 
     @Inject
     private IssueRepository repository;
 
+    @Inject
+    private IssueFactory factory;
 
+    @Inject
+    private DatabaseIntegrationTest.EntityManagerHolder entityManagerHolder;
+
+    @PersistenceContext(unitName="issues-unit")
+    private EntityManager entityManager;
 
     @Test
     public void shouldCreateResource() throws Exception {
@@ -33,7 +44,6 @@ public class IssuesResourceTest extends EndToEndTest {
         request.description = "Description";
         request.occurredIn.product = "supper-app";
         request.occurredIn.version = "1.2.10";
-
 
         Response response = given().contentType(ContentType.JSON).body(request)
                 .post("/app/issues").thenReturn();
@@ -62,6 +72,40 @@ public class IssuesResourceTest extends EndToEndTest {
         assertThat(load.description()).isEqualTo("Description");
         assertThat(load.createdAt()).isNotNull();
         assertThat(load.occuredIn()).isEqualTo(new ProductVersion(new ProductID("supper-app"), "1.2.10"));
+
+    }
+
+     /*
+     * GET /issues
+     *
+     *  Resp: 200 OK
+     *  [{
+     *      number: 23,
+     *      title: "Issue Title",
+     *      description: "Title Description",
+     *      createdAt: 12323453423,
+     *      reportedBy: "homer.simpson@acme.com",
+     *      occuredIn: { product: "supper-app", version: "1.2.10" }
+     *      fixedIn: undefined,
+     *      status: "OPEN",
+     *      resolution: undefined
+     *      relatedIssues: []
+     *  }]
+     */
+
+    @Test
+    public void shouldListIssues() {
+
+        repository.store(factory.newBug("#1 Issue", "Description of issue #1", new ProductVersion(new ProductID("acme"), "1.4.81")));
+        repository.store(factory.newBug("#2 Issue", "Description of issue #2", new ProductVersion(new ProductID("acme"), "2.18.126")));
+
+
+        Response response = given().contentType(ContentType.JSON)
+                .get("/app/issues").thenReturn();
+
+        assertThat(response.getStatusCode()).isEqualTo(200);
+        IssueResource.IssuesJson issues = response.as(IssueResource.IssuesJson.class);
+        assertThat(issues).hasSize(2);
 
     }
 

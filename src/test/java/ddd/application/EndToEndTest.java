@@ -44,7 +44,7 @@ public abstract class EndToEndTest {
     public void injectFields() {
         BeanProvider.injectFields(this);
     }
-    
+
     @AfterClass
     public static void stopServer() {
         application.stop();
