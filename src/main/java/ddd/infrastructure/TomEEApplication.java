@@ -19,7 +19,10 @@ public class TomEEApplication {
         archive = ShrinkWrap.create(WebArchive.class);
         archive.addPackages(true, "ddd");
         archive.addAsWebInfResource("beans.xml", "beans.xml");
+        archive.addAsWebResource("static/application.js", "application.js");
         archive.addAsWebResource("static/index.html", "index.html");
+        archive.addAsWebResource("static/new.html", "new.html");
+        archive.addAsWebResource("static/list.html", "list.html");
         archive.addAsManifestResource("META-INF/persistence.xml", "persistence.xml");
     }
 
