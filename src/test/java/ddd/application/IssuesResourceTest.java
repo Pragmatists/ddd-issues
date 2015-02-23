@@ -1,11 +1,10 @@
 package ddd.application;
 
-import static com.jayway.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.jayway.restassured.RestAssured.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -21,6 +20,7 @@ import ddd.domain.IssueNumber;
 import ddd.domain.IssueRepository;
 import ddd.domain.ProductID;
 import ddd.domain.ProductVersion;
+import ddd.infrastructure.DatabaseIntegrationTest;
 
 public class IssuesResourceTest extends EndToEndTest {
 
@@ -51,7 +51,6 @@ public class IssuesResourceTest extends EndToEndTest {
 
     @Test
     public void shouldPersistResource() throws Exception {
-        
         // given
         IssueResource.IssueJson request = new IssueResource.IssueJson();
         request.title = "First Issue";

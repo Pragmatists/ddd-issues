@@ -9,29 +9,21 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 
-import ddd.application.HelloResource;
-import ddd.application.IssueResource;
-import ddd.domain.Greetings;
-import ddd.domain.IssueFactory;
-import ddd.domain.IssueRepository;
-
 public class TomEEApplication {
 
     private Container container;
 
     private final WebArchive archive;
 
-    private TomEEApplication(Class<?>... classes) {
+    private TomEEApplication() {
         archive = ShrinkWrap.create(WebArchive.class);
-//        archive.addClasses(classes);
         archive.addPackages(true, "ddd");
         archive.addAsWebInfResource("beans.xml", "beans.xml");
         archive.addAsManifestResource("META-INF/persistence.xml", "persistence.xml");
     }
 
     public static TomEEApplication application() {
-        return new TomEEApplication(HelloResource.class, Greetings.class, IssueResource.class, IssueFactory.class, IssueRepository.class,
-                JpaIssueNumberSequence.class, JpaIssueRepository.class, DateUtilClock.class, JpaIssues.class);
+        return new TomEEApplication();
     }
 
     public void start() {
