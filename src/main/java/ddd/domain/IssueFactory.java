@@ -13,9 +13,8 @@ public class IssueFactory {
     public Issue newBug(String title, String description, ProductVersion occuredIn){
 
 //      ParticipantID reportedBy = loggedInParticipant.participantID();        
-      Issue newIssue = new Issue(sequence.nextNumber(), "", occuredIn, clock.time());
-      newIssue.renameTo(title);
-//      newIssue.updateDescription(description);        
+      Issue newIssue = new Issue(sequence.nextNumber(), title, occuredIn, clock.time());
+      newIssue.updateDescription(description);
       return newIssue;
     }
     

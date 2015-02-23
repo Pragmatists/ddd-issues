@@ -1,8 +1,12 @@
-package ddd.domain;
+package ddd.infrastructure;
 
-import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+
+import ddd.domain.Issue;
+import ddd.domain.IssueNumber;
+import ddd.domain.IssueRepository;
+import ddd.domain.Issues;
 
 public class JpaIssueRepository implements IssueRepository {
 
@@ -15,8 +19,8 @@ public class JpaIssueRepository implements IssueRepository {
     }
 
     @Override
-    public Optional<Issue> load(IssueNumber issueNumber) {
-        return null;
+    public Issue load(IssueNumber issueNumber) {
+        return entityManager.find(Issue.class, issueNumber);
     }
 
     @Override

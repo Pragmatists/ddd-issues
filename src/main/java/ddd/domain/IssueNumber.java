@@ -14,6 +14,9 @@ public class IssueNumber {
         this.value = value;
     }
 
+    public IssueNumber next() {
+        return new IssueNumber(++value);
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -37,7 +40,4 @@ public class IssueNumber {
         return String.valueOf(value);
     }
 
-    public int value() {
-        return value;
-    }
 }

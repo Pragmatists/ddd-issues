@@ -1,6 +1,7 @@
 package ddd.domain;
 
 import java.util.Date;
+import javax.persistence.Embedded;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 
@@ -35,7 +36,13 @@ public class Issue {
 
     private Date createdAt;
 
-//    private ProductVersion occuredIn;
+    public Date createdAt() {
+        return createdAt;
+    }
+
+
+    @Embedded
+    private ProductVersion occuredIn;
 //    private ProductVersion fixedIn;
 
 //    private Status status;
@@ -50,21 +57,33 @@ public class Issue {
     public Issue(IssueNumber number, String title, ProductVersion occuredIn, Date createdAt) {
         this.number = number;
         this.title = title;
-//        this.occuredIn = occuredIn;
+        this.occuredIn = occuredIn;
         this.createdAt = createdAt;
     }
-
     public IssueNumber number() {
         return number;
     }
 
 
+    public ProductVersion occuredIn() {
+        return occuredIn;
+    }
+
     public void renameTo(String newName) {
         this.title = newName;
     }
 
-    ;
-//    public void updateDescription(String newDescription);    
+    public String title() {
+        return title;
+    }
+
+    public String description() {
+        return description;
+    }
+
+    public void updateDescription(String newDescription){
+        description = newDescription;
+    }
 
     // state transitions:
 //    public void assignTo(ParticipantID assignee);

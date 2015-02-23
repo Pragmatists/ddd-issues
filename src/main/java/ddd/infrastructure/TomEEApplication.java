@@ -14,7 +14,6 @@ import ddd.application.IssueResource;
 import ddd.domain.Greetings;
 import ddd.domain.IssueFactory;
 import ddd.domain.IssueRepository;
-import ddd.domain.JpaIssueRepository;
 
 public class TomEEApplication {
 
@@ -31,7 +30,7 @@ public class TomEEApplication {
 
     public static TomEEApplication application() {
         return new TomEEApplication(HelloResource.class, Greetings.class, IssueResource.class, IssueFactory.class, IssueRepository.class,
-                InMemoryIssueNumberSequence.class, JpaIssueRepository.class, ClockImpl.class);
+                JpaIssueNumberSequence.class, JpaIssueRepository.class, DateUtilClock.class);
     }
 
     public void start() {

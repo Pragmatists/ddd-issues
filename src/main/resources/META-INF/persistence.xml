@@ -1,13 +1,15 @@
 <persistence xmlns="http://java.sun.com/xml/ns/persistence" version="1.0">
 
-  <persistence-unit name="issues-unit">
-    <jta-data-source>issuesDatabase</jta-data-source>
-    <non-jta-data-source>issuesDatabaseUnmanaged</non-jta-data-source>
-    <class>ddd.infrastructure.Foo</class>
-    <class>ddd.domain.Issue</class>
-    <class>ddd.domain.IssueNumber</class>
-    <properties>
-      <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
-    </properties>
-  </persistence-unit>
+    <persistence-unit name="issues-unit">
+        <jta-data-source>issuesDatabase</jta-data-source>
+        <non-jta-data-source>issuesDatabaseUnmanaged</non-jta-data-source>
+        <class>ddd.infrastructure.Foo</class>
+        <class>ddd.domain.Issue</class>
+        <class>ddd.domain.IssueNumber</class>
+        <class>ddd.domain.ProductID</class>
+        <class>ddd.domain.ProductVersion</class>
+        <properties>
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+        </properties>
+    </persistence-unit>
 </persistence>

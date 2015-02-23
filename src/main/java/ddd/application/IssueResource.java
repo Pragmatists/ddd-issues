@@ -11,11 +11,14 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import ddd.domain.Issue;
 import ddd.domain.IssueFactory;
 import ddd.domain.IssueRepository;
+import ddd.domain.ProductID;
 import ddd.domain.ProductVersion;
 
 @Stateless
@@ -45,21 +48,24 @@ public class IssueResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
     public Response create(IssueJson issueJson) throws URISyntaxException {
-        Issue issue = factory.newBug(issueJson.title, issueJson.descripton, new ProductVersion());
+        Issue issue = factory.newBug(issueJson.title, issueJson.description, new ProductVersion(new ProductID(issueJson.occurredIn
+                .product), issueJson.occurredIn.version));
         repository.store(issue);
         return Response.created(new URI(String.format("/issues/%s", issue.number()))).build();
     }
 
     @XmlRootElement(name = "IssueJson")
+    @XmlAccessorType(XmlAccessType.FIELD)
     static class IssueJson {
         String title = "";
 
-        String descripton = "";
+        String description = "";
 
-                OccurrenceJson occurrenceIn;
+        OccurredInJson occurredIn = new OccurredInJson();
     }
 
-    static class OccurrenceJson {
+    @XmlAccessorType(XmlAccessType.FIELD)
+    static class OccurredInJson {
         String product;
 
         String version;
