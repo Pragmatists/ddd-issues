@@ -29,6 +29,7 @@ public class ProductVersion implements Serializable {
     }
 
     public ProductVersion(ProductID product, String version) {
+        this.product = product;
         Matcher matcher = PATTERN.matcher(version);
         if (matcher.matches()) {
             majorVersion = Integer.valueOf(matcher.group(1));
@@ -37,7 +38,6 @@ public class ProductVersion implements Serializable {
         } else {
             throw new IllegalArgumentException(String.format("Wrong format for version '%s'", version));
         }
-        this.product = product;
 
     }
 
@@ -45,6 +45,10 @@ public class ProductVersion implements Serializable {
     // public ProductVersion nextMinorVersion();
     // public ProductVersion nextMajorVersion();
     // public ProductVersion nextReleaseCandidate();
+    public ProductID product() {
+        return product;
+    }
+
     // public ProductVersion nextGeneralAvailabilityVersion();
 
     @Override
@@ -93,7 +97,6 @@ public class ProductVersion implements Serializable {
 
     @Override
     public String toString() {
-
-        return format("%s-%s.%s.%s",product,majorVersion, minorVersion, buildNumber);
+        return format("%s.%s.%s",majorVersion, minorVersion, buildNumber);
     }
 }

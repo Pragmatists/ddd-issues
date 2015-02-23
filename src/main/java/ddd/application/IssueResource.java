@@ -3,6 +3,7 @@ package ddd.application;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -78,13 +79,13 @@ public class IssueResource {
      */
      @GET
      @Transactional
-     public IssuesJson list() throws URISyntaxException {
+     public Response list() throws URISyntaxException {
          IssuesJson issuesJson = new IssuesJson();
 
          for (Issue issue : issues) {
-             issuesJson.add(new IssueJson());
+             issuesJson.add(new IssueJson(issue));
          }
-         return issuesJson;
+         return Response.ok(issuesJson).build();
      }
 
     @XmlRootElement(name = "IssueJson")
@@ -95,6 +96,17 @@ public class IssueResource {
         String description = "";
 
         OccurredInJson occurredIn = new OccurredInJson();
+
+        public IssueJson() {
+        }
+
+        public IssueJson(Issue issue) {
+            title = issue.title();
+            description = issue.description();
+
+            occurredIn = new OccurredInJson(issue.occuredIn());
+
+        }
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)
@@ -102,14 +114,28 @@ public class IssueResource {
         String product;
 
         String version;
+
+        public OccurredInJson() {
+        }
+
+        public OccurredInJson(ProductVersion occuredIn) {
+            product = occuredIn.product().toString();
+            version = occuredIn.toString();
+        }
     }
 
-    public static class IssuesJson extends ArrayList<IssueJson> {
+    @XmlRootElement(name = "IssuesJson")
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class IssuesJson  {
+
+        List<IssueJson> issues = new ArrayList<>();
+
+        void add(IssueJson issueJson) {
+            issues.add(issueJson);
+        }
 
     }
-    
 
-    
     /* 
      * GET /issues/23 
      *  

@@ -13,6 +13,7 @@ import org.junit.BeforeClass;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jayway.restassured.RestAssured;
@@ -38,7 +39,8 @@ public abstract class EndToEndTest {
                     @Override
                     public ObjectMapper create(Class aClass, String s) {
                         return new ObjectMapper().setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
-                                .configure(SerializationFeature.WRAP_ROOT_VALUE, true);
+                                .configure(SerializationFeature.WRAP_ROOT_VALUE, true)
+                                .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
                     }
                 }
         ));

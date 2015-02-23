@@ -20,7 +20,6 @@ import ddd.domain.IssueNumber;
 import ddd.domain.IssueRepository;
 import ddd.domain.ProductID;
 import ddd.domain.ProductVersion;
-import ddd.infrastructure.DatabaseIntegrationTest;
 
 public class IssuesResourceTest extends EndToEndTest {
 
@@ -103,7 +102,7 @@ public class IssuesResourceTest extends EndToEndTest {
 
         assertThat(response.getStatusCode()).isEqualTo(200);
         IssueResource.IssuesJson issues = response.as(IssueResource.IssuesJson.class);
-        assertThat(issues).hasSize(2);
+        assertThat(issues.issues).hasSize(2);
 
     }
 
