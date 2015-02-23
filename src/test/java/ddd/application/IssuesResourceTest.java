@@ -6,8 +6,6 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 import org.junit.Test;
 
@@ -20,7 +18,6 @@ import ddd.domain.IssueNumber;
 import ddd.domain.IssueRepository;
 import ddd.domain.ProductID;
 import ddd.domain.ProductVersion;
-import ddd.infrastructure.DatabaseIntegrationTest;
 
 public class IssuesResourceTest extends EndToEndTest {
 
@@ -29,12 +26,6 @@ public class IssuesResourceTest extends EndToEndTest {
 
     @Inject
     private IssueFactory factory;
-
-    @Inject
-    private DatabaseIntegrationTest.EntityManagerHolder entityManagerHolder;
-
-    @PersistenceContext(unitName="issues-unit")
-    private EntityManager entityManager;
 
     @Test
     public void shouldCreateResource() throws Exception {
