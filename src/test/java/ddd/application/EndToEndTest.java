@@ -1,6 +1,10 @@
 package ddd.application;
 
-import static com.jayway.restassured.config.ObjectMapperConfig.*;
+import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfig;
+
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.junit.AfterClass;
@@ -45,6 +49,21 @@ public abstract class EndToEndTest {
         BeanProvider.injectFields(this);
     }
 
+    protected void doInTransaction(Runnable operation) {
+        TransactionalWrapper wrapper = BeanProvider.getContextualReference(TransactionalWrapper.class);
+        wrapper.run(operation);
+    }
+
+    @Stateless
+    public static class TransactionalWrapper {
+        
+        @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+        public void run(Runnable operation){
+            operation.run();
+        }
+        
+    }
+    
     @AfterClass
     public static void stopServer() {
         application.stop();

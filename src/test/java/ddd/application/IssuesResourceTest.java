@@ -1,10 +1,11 @@
 package ddd.application;
 
-import static com.jayway.restassured.RestAssured.*;
-import static org.assertj.core.api.Assertions.*;
+import static com.jayway.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -20,7 +21,6 @@ import ddd.domain.IssueNumber;
 import ddd.domain.IssueRepository;
 import ddd.domain.ProductID;
 import ddd.domain.ProductVersion;
-import ddd.infrastructure.DatabaseIntegrationTest;
 
 public class IssuesResourceTest extends EndToEndTest {
 
@@ -29,9 +29,6 @@ public class IssuesResourceTest extends EndToEndTest {
 
     @Inject
     private IssueFactory factory;
-
-    @Inject
-    private DatabaseIntegrationTest.EntityManagerHolder entityManagerHolder;
 
     @PersistenceContext(unitName="issues-unit")
     private EntityManager entityManager;
@@ -54,6 +51,7 @@ public class IssuesResourceTest extends EndToEndTest {
 
     @Test
     public void shouldPersistResource() throws Exception {
+        
         // given
         IssueResource.IssueJson request = new IssueResource.IssueJson();
         request.title = "First Issue";
@@ -96,9 +94,10 @@ public class IssuesResourceTest extends EndToEndTest {
     @Test
     public void shouldListIssues() {
 
-        repository.store(factory.newBug("#1 Issue", "Description of issue #1", new ProductVersion(new ProductID("acme"), "1.4.81")));
-        repository.store(factory.newBug("#2 Issue", "Description of issue #2", new ProductVersion(new ProductID("acme"), "2.18.126")));
-
+        doInTransaction(() -> {
+            repository.store(factory.newBug("#1 Issue", "Description of issue #1", new ProductVersion(new ProductID("acme"), "1.4.81")));
+            repository.store(factory.newBug("#2 Issue", "Description of issue #2", new ProductVersion(new ProductID("acme"), "2.18.126")));
+        });
 
         Response response = given().contentType(ContentType.JSON)
                 .get("/app/issues").thenReturn();

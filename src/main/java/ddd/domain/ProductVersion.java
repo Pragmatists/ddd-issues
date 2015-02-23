@@ -2,13 +2,15 @@ package ddd.domain;
 
 import static java.lang.String.format;
 
+import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 
 @Embeddable
-public class ProductVersion {
+public class ProductVersion implements Serializable {
 
     private static final Pattern PATTERN= Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)");
 
