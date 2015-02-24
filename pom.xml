@@ -65,18 +65,19 @@
 			<artifactId>tomee-jaxrs</artifactId>
 			<version>1.7.1</version>
 		</dependency>
-        <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
-            <version>7.0</version>
-        </dependency>
 		<dependency>
 		  	<groupId>org.jboss.shrinkwrap</groupId>
 		  	<artifactId>shrinkwrap-depchain</artifactId>
 			<version>1.2.2</version>
 			<type>pom</type>
 		</dependency>    
-    
+	    
+	    <!-- Upgrade openjpa enhancer to use Java 8:-->
+	    <dependency>
+			<groupId>net.sourceforge.serp</groupId>
+			<artifactId>serp</artifactId>
+			<version>1.15.1</version>
+		</dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

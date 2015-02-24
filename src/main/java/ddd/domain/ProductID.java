@@ -2,20 +2,13 @@ package ddd.domain;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
 
-@Embeddable
 public class ProductID implements Serializable {
 
-    @Column(name = "product_id")
     private String value;
 
     public ProductID(String value) {
         this.value = value;
-    }
-
-    public ProductID() {
     }
 
     @Override

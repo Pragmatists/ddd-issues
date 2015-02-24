@@ -3,13 +3,15 @@
     <persistence-unit name="issues-unit">
         <jta-data-source>issuesDatabase</jta-data-source>
         <non-jta-data-source>issuesDatabaseUnmanaged</non-jta-data-source>
-        <class>ddd.infrastructure.Foo</class>
         <class>ddd.domain.Issue</class>
+        <class>ddd.domain.RelatedIssue</class>
         <class>ddd.domain.IssueNumber</class>
-        <class>ddd.domain.ProductID</class>
-        <class>ddd.domain.ProductVersion</class>
+        <!-- class>ddd.domain.ProductID</class -->
+        <!-- class>ddd.domain.ProductVersion</class -->
         <properties>
             <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+			<property name="openjpa.Log" value="SQL=Trace" />
+			<property name="openjpa.ConnectionFactoryProperties" value="PrintParameters=true" />            
         </properties>
     </persistence-unit>
 </persistence>

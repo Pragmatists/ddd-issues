@@ -4,9 +4,12 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.Embedded;
+import javax.persistence.CascadeType;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.OneToMany;
+
+import org.apache.openjpa.persistence.jdbc.Strategy;
 
 @Entity
 public class Issue {
@@ -56,25 +59,7 @@ public class Issue {
         FIXED, DUPLICATE, WONT_FIX, CANNOT_REPRODUCE
     }
 
-    public enum RelationshipType {
-        DUPLICATES, IS_DUPLICATED_BY,
-        REFERS_TO, IS_REFERRED_BY,
-        BLOCKS, IS_BLOCKED_BY
-    }
-
-    private class RelatedIssue {
-        
-        private IssueNumber related;
-        private RelationshipType type;
-        
-        private RelatedIssue(IssueNumber number, RelationshipType type) {
-            this.related = number;
-            this.type = type;
-        }
-    }
-
-    @Id
-    @Embedded
+    @EmbeddedId
     private IssueNumber number;
     private String title;
     private String description;
@@ -84,12 +69,14 @@ public class Issue {
     
     private Date createdAt;
 
-    @Embedded
+    @Strategy("ddd.infrastructure.ProductVersionSerializationStrategy")
     private ProductVersion occuredIn;
-    @Embedded
+    @Strategy("ddd.infrastructure.ProductVersionSerializationStrategy")
     private ProductVersion fixVersion;
+    @Strategy("ddd.infrastructure.ParticipantIDSerializationStrategy")
     private ParticipantID assignee;
 
+    @OneToMany(cascade=CascadeType.ALL, mappedBy="source")
     private Set<RelatedIssue> relatedIssues = new HashSet<>();
     
     protected Issue() {
@@ -161,7 +148,7 @@ public class Issue {
     public void duplicateOf(IssueNumber duplicate){
         
         resolveAs(Resolution.DUPLICATE);
-        this.relatedIssues.add(new RelatedIssue(duplicate, RelationshipType.DUPLICATES));
+        this.relatedIssues.add(new RelatedIssue(this, duplicate, RelatedIssue.RelationshipType.DUPLICATES));
     }
     
     public void wontFix(String reason){
@@ -183,7 +170,7 @@ public class Issue {
     }
 
     public boolean isDuplicateOf(IssueNumber issueNumber) {
-        return hasRelationshipTo(issueNumber, RelationshipType.DUPLICATES);
+        return hasRelationshipTo(issueNumber, RelatedIssue.RelationshipType.DUPLICATES);
     }
 
     public void close(){
@@ -195,26 +182,23 @@ public class Issue {
         this.assignee = null;
     }
 
-    public boolean hasRelationshipTo(IssueNumber issueNumber, RelationshipType type) {
-        return relatedIssues.stream()
-                .filter(issue -> issue.related.equals(issueNumber) && issue.type.equals(type))
-                .findAny()
-                .isPresent();
+    public boolean hasRelationshipTo(IssueNumber issueNumber, RelatedIssue.RelationshipType type) {
+        return relatedIssues.contains(new RelatedIssue(this, issueNumber, type));
     }
 
     public void blocks(IssueNumber issueNumber) {
-        this.relatedIssues.add(new RelatedIssue(issueNumber, RelationshipType.BLOCKS));
+        this.relatedIssues.add(new RelatedIssue(this, issueNumber, RelatedIssue.RelationshipType.BLOCKS));
     }
     public void referTo(IssueNumber issueNumber) {
-        this.relatedIssues.add(new RelatedIssue(issueNumber, RelationshipType.REFERS_TO));
+        this.relatedIssues.add(new RelatedIssue(this, issueNumber, RelatedIssue.RelationshipType.REFERS_TO));
     }
     protected void isDuplicatedBy(IssueNumber duplicate){
-        this.relatedIssues.add(new RelatedIssue(duplicate, RelationshipType.IS_DUPLICATED_BY));
+        this.relatedIssues.add(new RelatedIssue(this, duplicate, RelatedIssue.RelationshipType.IS_DUPLICATED_BY));
     }
     protected void isReferredBy(IssueNumber referee){
-        this.relatedIssues.add(new RelatedIssue(referee, RelationshipType.IS_REFERRED_BY));
+        this.relatedIssues.add(new RelatedIssue(this, referee, RelatedIssue.RelationshipType.IS_REFERRED_BY));
     }
     protected void isBlockedBy(IssueNumber blocker){
-        this.relatedIssues.add(new RelatedIssue(blocker, RelationshipType.IS_BLOCKED_BY));
+        this.relatedIssues.add(new RelatedIssue(this, blocker, RelatedIssue.RelationshipType.IS_BLOCKED_BY));
     }
 }

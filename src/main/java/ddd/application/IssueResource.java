@@ -4,9 +4,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -53,7 +55,7 @@ public class IssueResource {
      */
 
     @POST
-    @Transactional
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Response create(IssueJson issueJson) throws URISyntaxException {
         Issue issue = factory.newBug(issueJson.title, issueJson.description, new ProductVersion(new ProductID(issueJson.occurredIn
                 .product), issueJson.occurredIn.version));
@@ -78,7 +80,7 @@ public class IssueResource {
      *  }]
      */
      @GET
-     @Transactional
+     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
      public Response list() throws URISyntaxException {
          IssuesJson issuesJson = new IssuesJson();
 

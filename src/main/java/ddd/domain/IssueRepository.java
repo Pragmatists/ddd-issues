@@ -12,6 +12,14 @@ public interface IssueRepository {
         }
     }
 
+    @ApplicationException
+    public class IssueNotFound extends IllegalArgumentException {
+        
+        public IssueNotFound(IssueNumber number) {
+            super(String.format("Issue with number='%s' does not exist!", number));
+        }
+    }
+    
     public void store(Issue issue);
 
     public Issue load(IssueNumber issueNumber);

@@ -1,13 +1,18 @@
 package ddd.infrastructure;
 
 import static ddd.infrastructure.TestComparators.fieldByField;
+import static org.apache.commons.lang3.builder.ToStringBuilder.reflectionToString;
+import static org.apache.commons.lang3.builder.ToStringStyle.MULTI_LINE_STYLE;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
@@ -15,85 +20,124 @@ import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import ddd.domain.Issue;
 import ddd.domain.IssueNumber;
 import ddd.domain.IssueRepository;
+import ddd.domain.ParticipantID;
 import ddd.domain.ProductID;
 import ddd.domain.ProductVersion;
 
 @RunWith(Arquillian.class)
+@Transactional(value=TransactionMode.ROLLBACK)
 public class JpaIssueRepositoryTest {
 
-    @Inject
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+    
+    @PersistenceContext
+    private EntityManager entityManager;
+
     private IssueRepository repository;
     
     @Deployment
     public static JavaArchive deployment(){
         return ShrinkWrap.create(JavaArchive.class)
-                .addClass(JpaIssueRepository.class)
                 .addAsManifestResource("META-INF/persistence.xml", "persistence.xml")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
-    
+
+    @Before
+    public void setUp() {
+
+        repository = new JpaIssueRepository(entityManager){
+            @Override
+            public void store(Issue issue) {
+                super.store(issue);
+                entityManager.flush();
+                entityManager.clear();
+            }
+        };
+    }
     
     @Test
-    @Transactional(value=TransactionMode.ROLLBACK)
     public void shouldStoreAndLoadIssue() throws Exception {
 
         // given:
         Issue issue = anIssue(new IssueNumber(123));
-        
+
         // when:
         repository.store(issue);
-
-        Issue loaded = repository.load(new IssueNumber(123));
         
         // then:
+        Issue loaded = repository.load(new IssueNumber(123));
         assertThat(loaded)
-            .usingComparator(fieldByField())
+            .usingComparator(fieldByField(Issue.class))
+            .describedAs("%s vs %s", reflectionToString(loaded, MULTI_LINE_STYLE), reflectionToString(issue, MULTI_LINE_STYLE))
             .isEqualTo(issue);
     }
 
     @Test
-    @Transactional(value=TransactionMode.ROLLBACK)
     public void shouldFailMeaningfullyIfIssueWithGivenNumberAlreadyExist() throws Exception {
 
+        // expect:
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Issue with number='123' already exists!");
+        
         // given:
-        Issue issue = anIssue(new IssueNumber(123));
-        
-        repository.store(issue);
+        issueAlreadyExists(new IssueNumber(123));
 
-        try {
-            
-            // when:
-            repository.store(issue);
-            failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-            
-        } catch(Exception e){
-            
-            // then:
-            assertThat(e)
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Issue with number='123' already exists!");
-        }
-        
+        // when:
+        repository.store(anIssue(new IssueNumber(123)));
     }
 
+    @Test
+    public void shouldFailMeaningfullyIfIssueWithGivenNumberDoesNotExist() throws Exception {
+        
+        // expect:
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Issue with number='404' does not exist!");
+            
+        // when:
+        repository.load(new IssueNumber(404));
+    }
 
     // --
-    
+
     private Issue anIssue(IssueNumber issueNumber) {
-        return new Issue(issueNumber, "System does not work!", aProductVersion(), aDate());
+        Issue issue = new Issue(issueNumber, "System does not work!", aProductVersion(), aDate());
+        issue.assignTo(new ParticipantID("homer.simpson"));
+        issue.fixedIn(aProductVersion("4.5.6"));
+        issue.updateDescription("This is very very long description of this issue!");
+        issue.referTo(new IssueNumber(888));
+        issue.blocks(new IssueNumber(777));
+        return issue;
+    }
+    
+    private Issue issueAlreadyExists(IssueNumber issueNumber) {
+        Issue issue = anIssue(issueNumber);
+        repository.store(issue);
+        return issue;
     }
     
     private Date aDate() {
-        return new Date();
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2014-10-11 12:34:56");
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private ProductVersion aProductVersion() {
-        return new ProductVersion(new ProductID("buggy"), "1.2.3");
+        return aProductVersion("1.2.3");
+    }
+
+    private ProductVersion aProductVersion(String version) {
+        return new ProductVersion(new ProductID("buggy-app"), version);
     }
 }

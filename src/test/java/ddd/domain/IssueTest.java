@@ -8,9 +8,9 @@ import java.util.Date;
 
 import org.junit.Test;
 
-import ddd.domain.Issue.RelationshipType;
 import ddd.domain.Issue.Resolution;
 import ddd.domain.Issue.Status;
+import ddd.domain.RelatedIssue.RelationshipType;
 
 public class IssueTest {
 
@@ -245,7 +245,7 @@ public class IssueTest {
         issue.blocks(new IssueNumber(987));
         
         // then:
-        assertThat(issue.hasRelationshipTo(new IssueNumber(987), RelationshipType.BLOCKS)).isTrue();
+        assertThat(issue.hasRelationshipTo(new IssueNumber(987), RelatedIssue.RelationshipType.BLOCKS)).isTrue();
     }
     
     @Test
@@ -258,7 +258,7 @@ public class IssueTest {
         issue.referTo(new IssueNumber(987));
         
         // then:
-        assertThat(issue.hasRelationshipTo(new IssueNumber(987), RelationshipType.REFERS_TO)).isTrue();
+        assertThat(issue.hasRelationshipTo(new IssueNumber(987), RelatedIssue.RelationshipType.REFERS_TO)).isTrue();
     }
     
     // --

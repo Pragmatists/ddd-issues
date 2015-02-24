@@ -6,15 +6,11 @@ import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.persistence.Embeddable;
-import javax.persistence.Embedded;
 
-@Embeddable
-public class ProductVersion implements Serializable {
+public class ProductVersion implements Serializable{
 
     private static final Pattern PATTERN= Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)");
 
-    @Embedded
     private ProductID product;
     
     // "1.5.12", "2.0.0.RC1", "2.0.0.GA"
@@ -25,11 +21,12 @@ public class ProductVersion implements Serializable {
     private Integer releaseCandidate;
     private boolean generalAvailability;
 
-    public ProductVersion() {
-    }
-
     public ProductVersion(ProductID product, String version) {
         this.product = product;
+        parseVersion(version);
+    }
+
+    private void parseVersion(String version) {
         Matcher matcher = PATTERN.matcher(version);
         if (matcher.matches()) {
             majorVersion = Integer.valueOf(matcher.group(1));
@@ -38,7 +35,6 @@ public class ProductVersion implements Serializable {
         } else {
             throw new IllegalArgumentException(String.format("Wrong format for version '%s'", version));
         }
-
     }
 
     // public ProductVersion nextBuildVersion();
@@ -97,6 +93,14 @@ public class ProductVersion implements Serializable {
 
     @Override
     public String toString() {
-        return format("%s.%s.%s",majorVersion, minorVersion, buildNumber);
+        return format("%s %s.%s.%s", product, majorVersion, minorVersion, buildNumber);
+    }
+
+    public static ProductVersion of(String value) {
+        
+        String product = value.split(" ")[0];
+        String version = value.split(" ")[1];
+        
+        return new ProductVersion(new ProductID(product), version);
     }
 }
