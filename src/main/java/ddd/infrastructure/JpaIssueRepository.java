@@ -7,6 +7,7 @@ import ddd.domain.Issue;
 import ddd.domain.IssueNumber;
 import ddd.domain.IssueRepository;
 import ddd.domain.Issues;
+import ddd.domain.IssueRepository.IssueAlreadyExists;
 
 public class JpaIssueRepository implements IssueRepository {
 
@@ -15,6 +16,9 @@ public class JpaIssueRepository implements IssueRepository {
 
     @Override
     public void store(Issue issue) {
+        if(load(issue.number()) != null){
+            throw new IssueAlreadyExists(issue.number());
+        }
         entityManager.persist(issue);
     }
 
@@ -27,4 +31,5 @@ public class JpaIssueRepository implements IssueRepository {
     public Issues loadAll() {
         return null;
     }
+
 }

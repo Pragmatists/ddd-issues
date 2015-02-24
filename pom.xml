@@ -41,6 +41,20 @@
 			<artifactId>tomee-embedded</artifactId>
 			<version>1.7.1</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.openejb</groupId>
+			<artifactId>arquillian-tomee-embedded</artifactId>
+			<version>1.7.1</version> <!--Current version-->
+		</dependency>
+		
+		<dependency>
+			<groupId>org.jboss.arquillian.junit</groupId>
+			<artifactId>arquillian-junit-container</artifactId>
+			<scope>test</scope>
+			<version>1.1.7.Final</version>
+		</dependency>
+		
 		<dependency>
 			<groupId>org.apache.openejb</groupId>
 			<artifactId>openejb-cxf-rs</artifactId>
