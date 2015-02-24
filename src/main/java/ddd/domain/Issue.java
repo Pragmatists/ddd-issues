@@ -1,6 +1,5 @@
 package ddd.domain;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,20 +10,21 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 
+import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
-import ddd.infrastructure.DateType;
+import ddd.infrastructure.DateUserType;
 import ddd.infrastructure.IssueNumberType;
 import ddd.infrastructure.ParticipantIDType;
 import ddd.infrastructure.ProductVersionType;
 
 @Entity
 @TypeDefs({
-    @TypeDef(typeClass = ProductVersionType.class, defaultForType=ProductVersion.class),
     @TypeDef(typeClass = IssueNumberType.class, defaultForType=IssueNumber.class),
+    @TypeDef(typeClass = ProductVersionType.class, defaultForType=ProductVersion.class),
     @TypeDef(typeClass = ParticipantIDType.class, defaultForType=ParticipantID.class),
-    @TypeDef(typeClass = DateType.class, defaultForType=Date.class)
+    @TypeDef(name = "dateUserType", typeClass = DateUserType.class, defaultForType=Date.class)
 })
 public class Issue {
 
@@ -81,13 +81,14 @@ public class Issue {
     private Status status;
     private Resolution resolution;
     
-    private Calendar createdAt;
+    @Type(type = "dateUserType")
+    private Date createdAt;
 
     private ProductVersion occuredIn;
     private ProductVersion fixVersion;
     private ParticipantID assignee;
 
-    @OneToMany(cascade=CascadeType.ALL)
+    @OneToMany(cascade=CascadeType.ALL, orphanRemoval=true)
     @JoinColumn
     private Set<RelatedIssue> relatedIssues = new HashSet<>();
     
@@ -100,14 +101,9 @@ public class Issue {
         this.number = number;
         this.title = title;
         this.occuredIn = occuredIn;
-        this.createdAt = toCalendar(createdAt);
+        this.createdAt = createdAt;
     }
-    private Calendar toCalendar(Date date) {
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        return c;
-    }
-
+    
     public IssueNumber number() {
         return number;
     }
@@ -129,7 +125,7 @@ public class Issue {
     }
 
     public Date createdAt() {
-        return createdAt.getTime();
+        return createdAt;
     }
     
     public void updateDescription(String newDescription){
@@ -144,7 +140,6 @@ public class Issue {
         return assignee;
     }
     
-    // state transitions:
     public void assignTo(ParticipantID assignee){
         
         this.status = status.assigned();

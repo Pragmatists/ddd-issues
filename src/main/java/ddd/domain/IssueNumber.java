@@ -6,9 +6,6 @@ public class IssueNumber implements Serializable {
 
     private int value;
 
-    public IssueNumber() {
-    }
-
     public IssueNumber(int value) {
         this.value = value;
     }
@@ -18,15 +15,15 @@ public class IssueNumber implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(Object obj) {
 
-        IssueNumber that = (IssueNumber) o;
+        if(!(obj instanceof IssueNumber)){
+            return false;
+        }
+        
+        IssueNumber other = (IssueNumber) obj;
 
-        if (value != that.value) return false;
-
-        return true;
+        return this.value != other.value;
     }
 
     @Override
