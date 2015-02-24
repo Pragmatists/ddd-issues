@@ -49,6 +49,7 @@ public class JpaIssueRepositoryTest {
     public static JavaArchive deployment(){
         return ShrinkWrap.create(JavaArchive.class)
                 .addAsManifestResource("META-INF/persistence.xml", "persistence.xml")
+                .addAsResource("log4j.properties")
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
 

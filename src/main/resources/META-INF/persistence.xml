@@ -1,17 +1,16 @@
 <persistence xmlns="http://java.sun.com/xml/ns/persistence" version="1.0">
 
     <persistence-unit name="issues-unit">
+    	<provider>org.hibernate.ejb.HibernatePersistence</provider>
         <jta-data-source>issuesDatabase</jta-data-source>
         <non-jta-data-source>issuesDatabaseUnmanaged</non-jta-data-source>
         <class>ddd.domain.Issue</class>
         <class>ddd.domain.RelatedIssue</class>
-        <class>ddd.domain.IssueNumber</class>
-        <!-- class>ddd.domain.ProductID</class -->
-        <!-- class>ddd.domain.ProductVersion</class -->
         <properties>
-            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
-			<property name="openjpa.Log" value="SQL=Trace" />
-			<property name="openjpa.ConnectionFactoryProperties" value="PrintParameters=true" />            
+        	<property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
+        	<property name="hibernate.hbm2ddl.auto" value="create-drop" />
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>        
         </properties>
     </persistence-unit>
 </persistence>

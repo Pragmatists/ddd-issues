@@ -2,10 +2,8 @@ package ddd.domain;
 
 import java.util.UUID;
 
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 
 @Entity
 public class RelatedIssue {
@@ -19,20 +17,39 @@ public class RelatedIssue {
     @Id
     private String id = UUID.randomUUID().toString();
 
-    @Embedded
     private IssueNumber related;
     private RelationshipType type;
-    @ManyToOne
-    private Issue source;
     
     protected RelatedIssue() {
         // JPA
     }
     
-    protected RelatedIssue(Issue source, IssueNumber number, RelatedIssue.RelationshipType type) {
+    protected RelatedIssue(IssueNumber number, RelatedIssue.RelationshipType type) {
         this();
-        this.source = source;
         this.related = number;
         this.type = type;
     }
+    
+    @Override
+    public String toString() {
+        return String.format("--[%s]--> %s", type, related);
+    }
+    
+    @Override
+    public int hashCode() {
+        return related.hashCode() + type.hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        
+        if(!(obj instanceof RelatedIssue)){
+            return false;
+        }
+        
+        RelatedIssue other = (RelatedIssue) obj;
+        
+        return type.equals(other.type) && related.equals(other.related);
+    }
+    
 }

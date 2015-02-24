@@ -2,9 +2,6 @@ package ddd.domain;
 
 import java.io.Serializable;
 
-import javax.persistence.Embeddable;
-
-@Embeddable
 public class IssueNumber implements Serializable {
 
     private int value;
