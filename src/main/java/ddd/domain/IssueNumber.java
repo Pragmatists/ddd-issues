@@ -23,7 +23,7 @@ public class IssueNumber implements Serializable {
         
         IssueNumber other = (IssueNumber) obj;
 
-        return this.value != other.value;
+        return this.value == other.value;
     }
 
     @Override

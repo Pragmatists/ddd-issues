@@ -5,12 +5,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 
+import org.apache.commons.lang3.Validate;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
@@ -74,7 +73,7 @@ public class Issue {
         FIXED, DUPLICATE, WONT_FIX, CANNOT_REPRODUCE
     }
 
-    @EmbeddedId
+    @Id
     private IssueNumber number;
     private String title;
     private String description;
@@ -82,13 +81,14 @@ public class Issue {
     private Status status;
     private Resolution resolution;
     
+    @Type(type="dateUserType")
     private Date createdAt;
 
     private ProductVersion occurredIn;
     private ProductVersion fixVersion;
     private ParticipantID assignee;
 
-    @OneToMany(cascade=CascadeType.ALL, mappedBy="source")
+    @OneToMany(cascade=CascadeType.ALL)
     private Set<RelatedIssue> relatedIssues = new HashSet<>();
     
     protected Issue() {
@@ -138,8 +138,9 @@ public class Issue {
         return assignee;
     }
     
-    // state transitions:
     public void assignTo(ParticipantID assignee){
+        
+        Validate.isTrue(assignee != null, "Assignee cannot be null!");
         
         this.status = status.assigned();
         this.assignee = assignee;
@@ -153,17 +154,24 @@ public class Issue {
     
     public void fixedIn(ProductVersion version){
         
+        Validate.isTrue(version != null, "Product version cannot be null!");
+        
         resolveAs(Resolution.FIXED);
         this.fixVersion = version;
     }
 
     public void duplicateOf(IssueNumber duplicate){
         
+        Validate.isTrue(duplicate != null, "Issue number cannot be null!");
+        
         resolveAs(Resolution.DUPLICATE);
         this.relatedIssues.add(new RelatedIssue(duplicate, RelatedIssue.RelationshipType.DUPLICATES));
     }
     
     public void wontFix(String reason){
+        
+        Validate.isTrue(reason != null, "Wont Fix explenation cannot be empty!");
+        Validate.notEmpty(reason, "Wont Fix explenation cannot be empty!");
         
         resolveAs(Resolution.WONT_FIX);
     }
@@ -189,6 +197,9 @@ public class Issue {
         this.status = status.close();
     }
     public void reopen(ProductVersion version){
+        
+        Validate.isTrue(version != null, "Product Version cannot be null!");
+        
         this.status = status.reopen();
         this.occurredIn = version;
         this.assignee = null;
@@ -199,18 +210,33 @@ public class Issue {
     }
 
     public void blocks(IssueNumber issueNumber) {
+        
+        Validate.isTrue(issueNumber != null, "Issue number cannot be null!");
+        
         this.relatedIssues.add(new RelatedIssue(issueNumber, RelatedIssue.RelationshipType.BLOCKS));
     }
     public void referTo(IssueNumber issueNumber) {
+        
+        Validate.isTrue(issueNumber != null, "Issue number cannot be null!");
+
         this.relatedIssues.add(new RelatedIssue(issueNumber, RelatedIssue.RelationshipType.REFERS_TO));
     }
     protected void isDuplicatedBy(IssueNumber duplicate){
+        
+        Validate.isTrue(assignee != null, "Issue number cannot be null!");
+        
         this.relatedIssues.add(new RelatedIssue(duplicate, RelatedIssue.RelationshipType.IS_DUPLICATED_BY));
     }
     protected void isReferredBy(IssueNumber referee){
+        
+        Validate.isTrue(assignee != null, "Issue number cannot be null!");
+        
         this.relatedIssues.add(new RelatedIssue(referee, RelatedIssue.RelationshipType.IS_REFERRED_BY));
     }
     protected void isBlockedBy(IssueNumber blocker){
+        
+        Validate.isTrue(assignee != null, "Issue number cannot be null!");
+        
         this.relatedIssues.add(new RelatedIssue(blocker, RelatedIssue.RelationshipType.IS_BLOCKED_BY));
     }
 }

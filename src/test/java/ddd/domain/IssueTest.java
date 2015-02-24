@@ -1,12 +1,14 @@
 package ddd.domain;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import ddd.domain.Issue.Resolution;
 import ddd.domain.Issue.Status;
@@ -14,6 +16,9 @@ import ddd.domain.RelatedIssue.RelationshipType;
 
 public class IssueTest {
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+    
     @Test
     public void shouldBeInOpenStateJustAfterCreation() throws Exception {
 
@@ -40,6 +45,19 @@ public class IssueTest {
     }
     
     @Test
+    public void shouldFailMeaningfullyIfAssigningInvalidParticipant() throws Exception {
+        
+        // expect:
+        thrown.expect(IllegalArgumentException.class);
+        
+        // given:
+        Issue issue = newIssue();
+        
+        // when:
+        issue.assignTo(null);
+    }
+    
+    @Test
     public void shouldHaveAssigneeAfterAssigningParticipant() throws Exception {
         
         // given:
@@ -63,6 +81,19 @@ public class IssueTest {
         
         // then:
         assertThat(issue.status()).isEqualTo(Status.RESOLVED);
+    }
+    
+    @Test
+    public void shouldFailMeaningfullyIfAssigningInvalidFixVersion() throws Exception {
+        
+        // expect:
+        thrown.expect(IllegalArgumentException.class);
+        
+        // given:
+        Issue issue = newIssue();
+        
+        // when:
+        issue.fixedIn(null);
     }
     
     @Test
@@ -102,6 +133,19 @@ public class IssueTest {
         
         // then:
         assertThat(issue.status()).isEqualTo(Status.RESOLVED);
+    }
+
+    @Test
+    public void shouldFailMeaningfullyIfMarkingAsDuplicateOfInvalidIssue() throws Exception {
+        
+        // expect:
+        thrown.expect(IllegalArgumentException.class);
+        
+        // given:
+        Issue issue = newIssue();
+        
+        // when:
+        issue.duplicateOf(null);
     }
 
     @Test
@@ -170,6 +214,32 @@ public class IssueTest {
     }
 
     @Test
+    public void shouldFailMeaningfullyIfProvidingInvalidExplanation() throws Exception {
+        
+        // expect:
+        thrown.expect(IllegalArgumentException.class);
+        
+        // given:
+        Issue issue = newIssue();
+        
+        // when:
+        issue.wontFix(null);
+    }
+
+    @Test
+    public void shouldFailMeaningfullyIfProvidingEmptyExplanation() throws Exception {
+        
+        // expect:
+        thrown.expect(IllegalArgumentException.class);
+        
+        // given:
+        Issue issue = newIssue();
+        
+        // when:
+        issue.wontFix("");
+    }
+    
+    @Test
     public void shouldHaveResolutionAfterMarkingAsWontFix() throws Exception {
         
         // given:
@@ -207,7 +277,20 @@ public class IssueTest {
         // then:
         assertThat(issue.status()).isEqualTo(Status.OPEN);
     }
-    
+
+    @Test
+    public void shouldFailMeaningfullyIfAssigningInvalidFixVersionOnReopen() throws Exception {
+        
+        // expect:
+        thrown.expect(IllegalArgumentException.class);
+        
+        // given:
+        Issue issue = closedIssue();
+        
+        // when:
+        issue.reopen(null);
+    }
+        
     @Test
     public void shouldResetOccuredInAfterReOpening() throws Exception {
         
@@ -259,6 +342,32 @@ public class IssueTest {
         
         // then:
         assertThat(issue.hasRelationshipTo(new IssueNumber(987), RelatedIssue.RelationshipType.REFERS_TO)).isTrue();
+    }
+    
+    @Test
+    public void shouldFailMeaningfullyIfReferingToInvalidIssue() throws Exception {
+        
+        // expect:
+        thrown.expect(IllegalArgumentException.class);
+        
+        // given:
+        Issue issue = newIssue();
+        
+        // when:
+        issue.referTo(null);
+    }
+
+    @Test
+    public void shouldFailMeaningfullyIfBlocksInvalidIssue() throws Exception {
+        
+        // expect:
+        thrown.expect(IllegalArgumentException.class);
+        
+        // given:
+        Issue issue = newIssue();
+        
+        // when:
+        issue.blocks(null);
     }
     
     // --
