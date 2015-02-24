@@ -2,7 +2,7 @@ package ddd.domain;
 
 import java.io.Serializable;
 
-public class IssueNumber implements Serializable {
+public class IssueNumber implements Serializable, Comparable<IssueNumber> {
 
     private int value;
 
@@ -34,6 +34,11 @@ public class IssueNumber implements Serializable {
     @Override
     public String toString() {
         return String.valueOf(value);
+    }
+
+    @Override
+    public int compareTo(IssueNumber o) {
+        return this.value - o.value;
     }
 
 }
