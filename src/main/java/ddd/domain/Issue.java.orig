@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -74,7 +73,7 @@ public class Issue {
         FIXED, DUPLICATE, WONT_FIX, CANNOT_REPRODUCE
     }
 
-    @EmbeddedId
+    @Id
     private IssueNumber number;
     private String title;
     private String description;
@@ -82,13 +81,21 @@ public class Issue {
     private Status status;
     private Resolution resolution;
     
+    @Type(type = "dateUserType")
     private Date createdAt;
 
+<<<<<<< HEAD
+    private ProductVersion occuredIn;
+=======
+    @Strategy("ddd.infrastructure.ProductVersionSerializationStrategy")
     private ProductVersion occurredIn;
+    @Strategy("ddd.infrastructure.ProductVersionSerializationStrategy")
+>>>>>>> fe60fc717bfeb27b3ee957051caf5125056edcf3
     private ProductVersion fixVersion;
     private ParticipantID assignee;
 
-    @OneToMany(cascade=CascadeType.ALL, mappedBy="source")
+    @OneToMany(cascade=CascadeType.ALL, orphanRemoval=true)
+    @JoinColumn
     private Set<RelatedIssue> relatedIssues = new HashSet<>();
     
     protected Issue() {
@@ -102,6 +109,7 @@ public class Issue {
         this.occurredIn = occurredIn;
         this.createdAt = createdAt;
     }
+    
     public IssueNumber number() {
         return number;
     }
@@ -138,7 +146,6 @@ public class Issue {
         return assignee;
     }
     
-    // state transitions:
     public void assignTo(ParticipantID assignee){
         
         this.status = status.assigned();
