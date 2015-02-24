@@ -3,8 +3,6 @@ package ddd.application;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.List;
-
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
@@ -13,15 +11,16 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 import ddd.domain.Issue;
 import ddd.domain.IssueFactory;
+import ddd.domain.IssueNumber;
 import ddd.domain.IssueRepository;
 import ddd.domain.Issues;
 import ddd.domain.ProductID;
@@ -56,53 +55,53 @@ public class IssueResource {
 
     @POST
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Response create(IssueJson issueJson) throws URISyntaxException {
+    public Response create(NewIssueJson issueJson) throws URISyntaxException {
         Issue issue = factory.newBug(issueJson.title, issueJson.description, new ProductVersion(new ProductID(issueJson.occurredIn
                 .product), issueJson.occurredIn.version));
         repository.store(issue);
         return Response.created(new URI(String.format("/issues/%s", issue.number()))).build();
     }
-     /*
-     * GET /issues
-     *
-     *  Resp: 200 OK
-     *  [{
-     *      number: 23,
-     *      title: "Issue Title",
-     *      description: "Title Description",
-     *      createdAt: 12323453423,
-     *      reportedBy: "homer.simpson@acme.com",
-     *      occuredIn: { product: "supper-app", version: "1.2.10" }
-     *      fixedIn: undefined,
-     *      status: "OPEN",
-     *      resolution: undefined
-     *      relatedIssues: []
-     *  }]
-     */
-     @GET
-     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-     public Response list() throws URISyntaxException {
-         IssuesJson issuesJson = new IssuesJson();
 
-         for (Issue issue : issues) {
-             issuesJson.add(new IssueJson(issue));
-         }
-         return Response.ok(issuesJson).build();
-     }
+    /*
+    * GET /issues
+    *
+    *  Resp: 200 OK
+    *  [{
+    *      number: 23,
+    *      title: "Issue Title",
+    *      description: "Title Description",
+    *      createdAt: 12323453423,
+    *      reportedBy: "homer.simpson@acme.com",
+    *      occuredIn: { product: "supper-app", version: "1.2.10" }
+    *      fixedIn: undefined,
+    *      status: "OPEN",
+    *      resolution: undefined
+    *      relatedIssues: []
+    *  }]
+    */
+    @GET
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public Response list() throws URISyntaxException {
+        IssuesJson issuesJson = new IssuesJson();
 
-    @XmlRootElement(name = "IssueJson")
-    @XmlAccessorType(XmlAccessType.FIELD)
-    static class IssueJson {
+        for (Issue issue : issues) {
+            issuesJson.add(new ExistingIssueJson(issue));
+        }
+        return Response.ok(issuesJson).build();
+    }
+
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+    static class NewIssueJson {
         String title = "";
 
         String description = "";
 
         OccurredInJson occurredIn = new OccurredInJson();
 
-        public IssueJson() {
+        public NewIssueJson() {
         }
 
-        public IssueJson(Issue issue) {
+        public NewIssueJson(Issue issue) {
             title = issue.title();
             description = issue.description();
 
@@ -111,7 +110,29 @@ public class IssueResource {
         }
     }
 
-    @XmlAccessorType(XmlAccessType.FIELD)
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+    static class ExistingIssueJson {
+        String number;
+
+        String title;
+
+        String description;
+
+        OccurredInJson occurredIn = new OccurredInJson();
+
+        public ExistingIssueJson() {
+        }
+
+        public ExistingIssueJson(Issue issue) {
+            number = issue.number().toString();
+            title = issue.title();
+            description = issue.description();
+
+            occurredIn = new OccurredInJson(issue.occuredIn());
+
+        }
+    }
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     static class OccurredInJson {
         String product;
 
@@ -126,15 +147,8 @@ public class IssueResource {
         }
     }
 
-    @XmlRootElement(name = "IssuesJson")
-    @XmlAccessorType(XmlAccessType.FIELD)
-    public static class IssuesJson  {
-
-        List<IssueJson> issues = new ArrayList<>();
-
-        void add(IssueJson issueJson) {
-            issues.add(issueJson);
-        }
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+    public static class IssuesJson extends ArrayList<ExistingIssueJson> {
 
     }
 
@@ -156,5 +170,11 @@ public class IssueResource {
      *      relatedIssues: []
      *  } 
      */
-
+    @GET
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    @Path("/{issueNumber}")
+    public Response get(@PathParam("issueNumber") Integer issueNumber) throws URISyntaxException {
+        Issue load = repository.load(new IssueNumber(issueNumber));
+        return Response.ok(new ExistingIssueJson(load)).build();
+    }
 }

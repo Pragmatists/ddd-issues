@@ -10,12 +10,12 @@ public class ProductVersionSerializationStrategy extends ValueObjectSerializatio
 
     @Override
     public Object toDataStoreValue(ValueMapping vm, Object val, JDBCStore store) {
-        return val.toString();
+        return val == null ? null : val.toString();
     }
 
     @Override
     public Object toObjectValue(ValueMapping vm, Object val) {
-        return ProductVersion.of(val.toString());
+        return val == null ? null : ProductVersion.of(val.toString());
     }
 
 }

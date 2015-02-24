@@ -9,12 +9,12 @@ public class ParticipantIDSerializationStrategy extends ValueObjectSerialization
 
     @Override
     public Object toDataStoreValue(ValueMapping vm, Object val, JDBCStore store) {
-        return val.toString();
+        return val == null ? null : val.toString();
     }
 
     @Override
     public Object toObjectValue(ValueMapping vm, Object val) {
-        return new ParticipantID(val.toString());
+        return val == null ? null : new ParticipantID(val.toString());
     }
 
 }

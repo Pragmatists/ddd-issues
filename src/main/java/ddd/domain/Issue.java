@@ -70,7 +70,7 @@ public class Issue {
     private Date createdAt;
 
     @Strategy("ddd.infrastructure.ProductVersionSerializationStrategy")
-    private ProductVersion occuredIn;
+    private ProductVersion occurredIn;
     @Strategy("ddd.infrastructure.ProductVersionSerializationStrategy")
     private ProductVersion fixVersion;
     @Strategy("ddd.infrastructure.ParticipantIDSerializationStrategy")
@@ -83,11 +83,11 @@ public class Issue {
         this.status = Status.OPEN;
     }
 
-    public Issue(IssueNumber number, String title, ProductVersion occuredIn, Date createdAt) {
+    public Issue(IssueNumber number, String title, ProductVersion occurredIn, Date createdAt) {
         this();
         this.number = number;
         this.title = title;
-        this.occuredIn = occuredIn;
+        this.occurredIn = occurredIn;
         this.createdAt = createdAt;
     }
     public IssueNumber number() {
@@ -95,7 +95,7 @@ public class Issue {
     }
 
     public ProductVersion occuredIn() {
-        return occuredIn;
+        return occurredIn;
     }
 
     public void renameTo(String newName) {
@@ -178,7 +178,7 @@ public class Issue {
     }
     public void reopen(ProductVersion version){
         this.status = status.reopen();
-        this.occuredIn = version;
+        this.occurredIn = version;
         this.assignee = null;
     }
 

@@ -35,7 +35,7 @@ public class IssuesResourceTest extends EndToEndTest {
     @Test
     public void shouldCreateResource() throws Exception {
         // given
-        IssueResource.IssueJson request = new IssueResource.IssueJson();
+        IssueResource.NewIssueJson request = new IssueResource.NewIssueJson();
         request.title = "First Issue";
         request.description = "Description";
         request.occurredIn.product = "supper-app";
@@ -51,7 +51,7 @@ public class IssuesResourceTest extends EndToEndTest {
     @Test
     public void shouldPersistResource() throws Exception {
         // given
-        IssueResource.IssueJson request = new IssueResource.IssueJson();
+        IssueResource.NewIssueJson request = new IssueResource.NewIssueJson();
         request.title = "First Issue";
         request.description = "Description";
         request.occurredIn.product = "supper-app";
@@ -102,7 +102,7 @@ public class IssuesResourceTest extends EndToEndTest {
 
         assertThat(response.getStatusCode()).isEqualTo(200);
         IssueResource.IssuesJson issues = response.as(IssueResource.IssuesJson.class);
-        assertThat(issues.issues).hasSize(2);
+        assertThat(issues).hasSize(2);
 
     }
 

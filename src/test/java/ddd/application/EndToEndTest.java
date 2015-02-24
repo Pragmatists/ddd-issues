@@ -1,6 +1,7 @@
 package ddd.application;
 
-import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfig;
+import static com.jayway.restassured.config.ObjectMapperConfig.*;
+import static ddd.infrastructure.CustomJacksonProvider.*;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -11,11 +12,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.mapper.factory.Jackson2ObjectMapperFactory;
@@ -39,9 +36,7 @@ public abstract class EndToEndTest {
                     @SuppressWarnings("rawtypes")
                     @Override
                     public ObjectMapper create(Class aClass, String s) {
-                        return new ObjectMapper().setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
-                                .configure(SerializationFeature.WRAP_ROOT_VALUE, true)
-                                .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
+                        return objectMapper();
                     }
                 }
         ));

@@ -10,10 +10,13 @@ import ddd.domain.IssueNumber;
 import ddd.domain.IssueRepository;
 import ddd.domain.Issues;
 
-@PersistenceContext 
 public class JpaIssueRepository implements IssueRepository {
 
+    @PersistenceContext(name = "issues-unit")
     private EntityManager entityManager;
+
+    public JpaIssueRepository() {
+    }
 
     public JpaIssueRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
