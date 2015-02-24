@@ -1,10 +1,11 @@
 package ddd.application;
 
-import static com.jayway.restassured.RestAssured.*;
-import static org.assertj.core.api.Assertions.*;
+import static com.jayway.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -34,34 +35,38 @@ public class IssuesResourceTest extends EndToEndTest {
 
     @Test
     public void shouldCreateResource() throws Exception {
-        // given
+
+        // given:
         IssueResource.NewIssueJson request = new IssueResource.NewIssueJson();
         request.title = "First Issue";
         request.description = "Description";
         request.occurredIn.product = "supper-app";
         request.occurredIn.version = "1.2.10";
 
+        // when:
         Response response = given().contentType(ContentType.JSON).body(request)
-                .post("/app/issues").thenReturn();
+                .post("/app/issues");
 
+        // then:
         assertThat(response.getStatusCode()).isEqualTo(201);
         assertThat(response.getHeader("Location")).matches(".*/issues/\\d+");
     }
 
     @Test
     public void shouldPersistResource() throws Exception {
-        // given
+
+        // given:
         IssueResource.NewIssueJson request = new IssueResource.NewIssueJson();
         request.title = "First Issue";
         request.description = "Description";
         request.occurredIn.product = "supper-app";
         request.occurredIn.version = "1.2.10";
 
-        // when
+        // when:
         Response response = given().contentType(ContentType.JSON).body(request)
                 .post("/app/issues").thenReturn();
 
-        // then
+        // then:
         IssueNumber id = extractFrom(response.getHeader("Location"));
         Issue load = repository.load(id);
         assertThat(load.title()).isEqualTo("First Issue");
@@ -71,39 +76,29 @@ public class IssuesResourceTest extends EndToEndTest {
 
     }
 
-     /*
-     * GET /issues
-     *
-     *  Resp: 200 OK
-     *  [{
-     *      number: 23,
-     *      title: "Issue Title",
-     *      description: "Title Description",
-     *      createdAt: 12323453423,
-     *      reportedBy: "homer.simpson@acme.com",
-     *      occuredIn: { product: "supper-app", version: "1.2.10" }
-     *      fixedIn: undefined,
-     *      status: "OPEN",
-     *      resolution: undefined
-     *      relatedIssues: []
-     *  }]
-     */
-
     @Test
     public void shouldListIssues() {
 
+        // given:
         doInTransaction(() -> {
-            repository.store(factory.newBug("#1 Issue", "Description of issue #1", new ProductVersion(new ProductID("acme"), "1.4.81")));
-            repository.store(factory.newBug("#2 Issue", "Description of issue #2", new ProductVersion(new ProductID("acme"), "2.18.126")));
+            repository.store(anIssue("Issue #1"));
+            repository.store(anIssue("Issue #2"));
         });
 
+        // when:
         Response response = given().contentType(ContentType.JSON)
                 .get("/app/issues").thenReturn();
 
+        // then:
         assertThat(response.getStatusCode()).isEqualTo(200);
         IssueResource.IssuesJson issues = response.as(IssueResource.IssuesJson.class);
         assertThat(issues).hasSize(2);
+    }
 
+    // --
+    
+    private Issue anIssue(String title) {
+        return factory.newBug(title, "Description of issue #1", new ProductVersion(new ProductID("acme"), "1.4.81"));
     }
 
     private IssueNumber extractFrom(String location) {

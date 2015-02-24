@@ -40,106 +40,79 @@ public class IssueResource {
 
     @Inject
     private Issues issues;
-    /* 
-     * POST /issues 
-     * 
-     *  Req:
-     *  { 
-     *      title: "Issue Title",
-     *      description: "Title Description", 
-     *      occuredIn: { product: "supper-app", version: "1.2.10" } 
-     *  } 
-     *  
-     *  Resp: 201 Created, Location: /issues/23
-     */
 
     @POST
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Response create(NewIssueJson issueJson) throws URISyntaxException {
-        Issue issue = factory.newBug(issueJson.title, issueJson.description, new ProductVersion(new ProductID(issueJson.occurredIn
-                .product), issueJson.occurredIn.version));
+        
+        ProductVersion version = new ProductVersion(new ProductID(issueJson.occurredIn.product), issueJson.occurredIn.version);
+        
+        Issue issue = factory.newBug(issueJson.title, issueJson.description, version);
         repository.store(issue);
+        
         return Response.created(new URI(String.format("/issues/%s", issue.number()))).build();
     }
 
-    /*
-    * GET /issues
-    *
-    *  Resp: 200 OK
-    *  [{
-    *      number: 23,
-    *      title: "Issue Title",
-    *      description: "Title Description",
-    *      createdAt: 12323453423,
-    *      reportedBy: "homer.simpson@acme.com",
-    *      occuredIn: { product: "supper-app", version: "1.2.10" }
-    *      fixedIn: undefined,
-    *      status: "OPEN",
-    *      resolution: undefined
-    *      relatedIssues: []
-    *  }]
-    */
     @GET
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Response list() throws URISyntaxException {
+    public Response list() {
+        
         IssuesJson issuesJson = new IssuesJson();
-
-        for (Issue issue : issues) {
-            issuesJson.add(new ExistingIssueJson(issue));
-        }
+        issues.forEach(issue -> issuesJson.add(new ExistingIssueJson(issue)));
+        
         return Response.ok(issuesJson).build();
     }
 
+    @GET
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    @Path("/{issueNumber}")
+    public Response get(@PathParam("issueNumber") Integer issueNumber) throws URISyntaxException {
+        
+        Issue load = repository.load(new IssueNumber(issueNumber));
+        return Response.ok(new ExistingIssueJson(load)).build();
+    }
+    
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     static class NewIssueJson {
+
         String title = "";
-
         String description = "";
-
         OccurredInJson occurredIn = new OccurredInJson();
 
-        public NewIssueJson() {
-        }
+        public NewIssueJson() {}
 
         public NewIssueJson(Issue issue) {
             title = issue.title();
             description = issue.description();
-
             occurredIn = new OccurredInJson(issue.occuredIn());
-
         }
     }
 
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     static class ExistingIssueJson {
+
         String number;
-
         String title;
-
         String description;
-
         OccurredInJson occurredIn = new OccurredInJson();
 
-        public ExistingIssueJson() {
-        }
+        public ExistingIssueJson() {}
 
         public ExistingIssueJson(Issue issue) {
             number = issue.number().toString();
             title = issue.title();
             description = issue.description();
-
             occurredIn = new OccurredInJson(issue.occuredIn());
-
         }
     }
+    
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     static class OccurredInJson {
+        
         String product;
-
         String version;
 
-        public OccurredInJson() {
-        }
+        public OccurredInJson() {}
 
         public OccurredInJson(ProductVersion occuredIn) {
             product = occuredIn.product().toString();
@@ -149,32 +122,6 @@ public class IssueResource {
 
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     public static class IssuesJson extends ArrayList<ExistingIssueJson> {
-
     }
 
-    /* 
-     * GET /issues/23 
-     *  
-     *  Resp: 200 OK
-     *  { 
-     *      number: 23,
-     *      title: "Issue Title",
-     *      description: "Title Description", 
-     *      createdAt: 12323453423,
-     *      reportedBy: "homer.simpson@acme.com",
-     *      assignedTo: undefined,
-     *      occuredIn: { product: "supper-app", version: "1.2.10" }
-     *      fixedIn: undefined,
-     *      status: "OPEN",
-     *      resolution: undefined 
-     *      relatedIssues: []
-     *  } 
-     */
-    @GET
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    @Path("/{issueNumber}")
-    public Response get(@PathParam("issueNumber") Integer issueNumber) throws URISyntaxException {
-        Issue load = repository.load(new IssueNumber(issueNumber));
-        return Response.ok(new ExistingIssueJson(load)).build();
-    }
 }

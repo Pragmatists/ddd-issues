@@ -1,6 +1,6 @@
 package ddd.domain;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -12,7 +12,6 @@ import org.junit.rules.ExpectedException;
 
 import ddd.domain.Issue.Resolution;
 import ddd.domain.Issue.Status;
-import ddd.domain.RelatedIssue.RelationshipType;
 
 public class IssueTest {
 
