@@ -110,8 +110,8 @@ public class Issue {
         return occurredIn;
     }
 
-    public void renameTo(String newName) {
-        this.title = newName;
+    public void renameTo(String newTitle) {
+        this.title = newTitle;
     }
 
     public String title() {

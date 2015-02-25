@@ -24,7 +24,25 @@ angular.module('ddd-issues', ['ngRoute'])
         $http.get('/app/issues')
             .success(function (data) {
                 $scope.issues = data;
-            })
+            });
+
+    })
+    .controller("IssueTitleCtrl", function ($scope, $http, $route) {
+    	
+    	$scope.edited = false;
+    	$scope.edit = function(){
+    		$scope.newTitle = $scope.issue.title;
+    		$scope.edited = true;
+    	};
+    	$scope.confirm = function(){
+            $http.post('/app/issues/' + $scope.issue.number + '/rename', {newTitle: $scope.newTitle})
+            .success(function () {
+            	$route.reload();
+            });
+    	};
+    	$scope.cancel = function(){
+    		$scope.edited = false;
+    	};
 
     })
     .controller("NewIssueCtrl", function ($scope, $http, $location, versions, products) {
@@ -38,7 +56,7 @@ angular.module('ddd-issues', ['ngRoute'])
             $http.post('/app/issues', $scope.newIssue)
                 .success(function () {
                     $location.path('/list');
-                })
+                });
         };
 
     })

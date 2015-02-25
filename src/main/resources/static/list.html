@@ -1,11 +1,27 @@
 <div>
-    <a href="#new">New Issue </a>
 
-    <table>
+    <a class="btn btn-primary" href="#new"><span class="glyphicon glyphicon-plus"></span> New Issue </a>
+
+	<div>
+		<h1 class="page-header">All Issues</h1>
+	</div>
+
+    <table class="table">
+        <thead>
+        	<tr>
+        		<th><span class="pull-right">#</span></th>
+        		<th>Title</th>
+        		<th>Product Version</th>
+        		<th>Status</th>
+        		<th>Asignee</th>
+        	</tr>
+       	</thead>
         <tr ng-repeat="issue in issues">
-            <td>{{issue.number}}</td>
-            <td>{{issue.title}}</td>
-            <td><a ng-href="#edit/{{issue.number}}">Edit</a></td>
+            <td><span class="pull-right">{{issue.number}}</span></td>
+            <td><a ng-href="#edit/{{issue.number}}">{{issue.title}}</a></td>
+            <td>{{issue.occurredIn.product}} {{issue.occurredIn.version}}</td>
+            <td><span class="label {{issue.status}}">{{issue.status}}</span></td> 
+            <td>{{issue.assignee}}</td>
         </tr>
     </table>
 

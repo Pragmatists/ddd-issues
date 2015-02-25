@@ -2,7 +2,10 @@ package ddd.application;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
@@ -43,11 +46,11 @@ public class IssueResource {
 
     @POST
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Response create(NewIssueJson issueJson) throws URISyntaxException {
+    public Response create(NewIssueJson json) throws URISyntaxException {
         
-        ProductVersion version = new ProductVersion(new ProductID(issueJson.occurredIn.product), issueJson.occurredIn.version);
+        ProductVersion version = new ProductVersion(new ProductID(json.occurredIn.product), json.occurredIn.version);
         
-        Issue issue = factory.newBug(issueJson.title, issueJson.description, version);
+        Issue issue = factory.newBug(json.title, json.description, version);
         repository.store(issue);
         
         return Response.created(new URI(String.format("/issues/%s", issue.number()))).build();
@@ -57,10 +60,10 @@ public class IssueResource {
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Response list() {
         
-        IssuesJson issuesJson = new IssuesJson();
-        issues.forEach(issue -> issuesJson.add(new ExistingIssueJson(issue)));
+        IssuesJson json = new IssuesJson();
+        issues.forEach(issue -> json.add(new ExistingIssueJson(issue)));
         
-        return Response.ok(issuesJson).build();
+        return Response.ok(json).build();
     }
 
     @GET
@@ -71,30 +74,57 @@ public class IssueResource {
         Issue load = repository.load(new IssueNumber(issueNumber));
         return Response.ok(new ExistingIssueJson(load)).build();
     }
+
+    @POST
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    @Path("/{issueNumber}/rename")
+    public Response rename(@PathParam("issueNumber") Integer issueNumber, RenameIssueJson json) throws URISyntaxException {
+        
+        Issue issue = repository.load(new IssueNumber(issueNumber));
+        issue.renameTo(json.newTitle);
+        return Response.ok().build();
+    }
     
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     static class NewIssueJson {
 
         String title = "";
         String description = "";
-        OccurredInJson occurredIn = new OccurredInJson();
+        VersionJson occurredIn = new VersionJson();
 
         public NewIssueJson() {}
 
         public NewIssueJson(Issue issue) {
             title = issue.title();
             description = issue.description();
-            occurredIn = new OccurredInJson(issue.occuredIn());
+            occurredIn = new VersionJson(issue.occuredIn());
         }
     }
 
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+    static class RenameIssueJson {
+        
+        String newTitle = "";
+        
+        public RenameIssueJson() {}
+        
+        public RenameIssueJson(String newTitle) {
+            this.newTitle = newTitle;
+        }
+    }
+    
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     static class ExistingIssueJson {
 
         String number;
         String title;
         String description;
-        OccurredInJson occurredIn = new OccurredInJson();
+        VersionJson occurredIn = new VersionJson();
+        VersionJson fixedIn = new VersionJson();
+        String status;
+        String resolution;
+        String createdAt;
+        String assignee;
 
         public ExistingIssueJson() {}
 
@@ -102,21 +132,27 @@ public class IssueResource {
             number = issue.number().toString();
             title = issue.title();
             description = issue.description();
-            occurredIn = new OccurredInJson(issue.occuredIn());
+            status = issue.status().name().toLowerCase();
+            resolution = issue.resolution() == null ? null : issue.resolution().name().toLowerCase();
+            createdAt = format(issue.createdAt());
+            occurredIn = new VersionJson(issue.occuredIn());
+            fixedIn = issue.fixVersion() == null ? null :  new VersionJson(issue.fixVersion());
+            assignee = issue.assignee() == null ? null :  issue.assignee().toString();
         }
+
     }
     
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-    static class OccurredInJson {
+    static class VersionJson {
         
         String product;
         String version;
 
-        public OccurredInJson() {}
+        public VersionJson() {}
 
-        public OccurredInJson(ProductVersion occuredIn) {
-            product = occuredIn.product().toString();
-            version = occuredIn.toString();
+        public VersionJson(ProductVersion productVersion) {
+            product = productVersion.toString().split(" ")[0];
+            version = productVersion.toString().split(" ")[1];
         }
     }
 
@@ -124,4 +160,7 @@ public class IssueResource {
     public static class IssuesJson extends ArrayList<ExistingIssueJson> {
     }
 
+    private static String format(Date date) {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
+    }
 }

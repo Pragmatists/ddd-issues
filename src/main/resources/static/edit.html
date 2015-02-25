@@ -1,9 +1,60 @@
 <div>
-    <ul>
-        <li>Number: {{issue.number}}</li>
-        <li>Title: {{issue.title}}</li>
-        <li>Description: {{issue.description}}</li>
-        <li>Product: {{issue.occurredIn.product}}</li>
-        <li>Version: {{issue.occurredIn.version}}</li>
-    </ul>
+
+	<ol class="breadcrumb">
+	  <li><a href="#/list">Issues</a></li>
+	  <li class="active">Issue #{{issue.number}}</li>
+	</ol>
+
+	<div>
+		<h1 class="page-header" ng-controller="IssueTitleCtrl"><small>Issue #{{issue.number}}:</small> 
+			<span ng-show="!edited" ng-click="edit()">{{issue.title}}</span>
+			<span ng-show="edited" class="form-inline form-group">
+				<input class="form-control input-lg issue-title" ng-model="newTitle"></input>
+				<a class="btn btn-primary" ng-click="confirm()">Rename</a>
+				<a class="btn btn-default" ng-click="cancel()">Cancel</a>				
+			</span>
+		</h1>
+	</div>
+
+	<form class="form col-sm-8">
+	  <div class="form-group form-group-lg">
+	    <label class="control-label" for="issue_description">Descrition</label>
+	   	<div class="panel panel-default issue-description" id="issue_description">
+      		<div class="panel-body">{{issue.description}}</div>
+      	</div>
+	  </div>
+	</form>
+
+	<form class="form form-horizontal col-sm-4">
+	  <div class="form-group">
+	    <label class="col-sm-4 control-label" for="issue_status">Status:</label>
+		<div class="col-sm-8">
+			<p class="form-control-static"><span class="label {{issue.status}}">{{issue.status}} <span ng-if="issue.resolution">({{issue.resolution}})</span></span></p>			
+		</div>
+	  </div>
+	  <div class="form-group">
+	    <label class="col-sm-4 control-label" for="issue_status">Created:</label>
+		<div class="col-sm-8">
+			<p class="form-control-static">{{issue.createdAt}}</p>
+		</div>
+	  </div>
+	  <div class="form-group">
+	    <label class="col-sm-4 control-label" for="issue_status">Occured In:</label>
+		<div class="col-sm-8">
+			<p class="form-control-static">{{issue.occurredIn.product}} {{issue.occurredIn.version}}</p>
+		</div>
+	  </div>
+	  <div class="form-group">
+	    <label class="col-sm-4 control-label" for="issue_status">Fixed In:</label>
+		<div class="col-sm-8">
+			<p class="form-control-static">{{issue.fixedIn.product}} {{issue.fixedIn.version}}</p>
+		</div>
+	  </div>
+	  <div class="form-group">
+	    <label class="col-sm-4 control-label" for="issue_status">Assigned To:</label>
+		<div class="col-sm-8">
+			<p class="form-control-static">{{issue.assignee}}</p>
+		</div>
+	  </div>
+	</form>
 </div>
