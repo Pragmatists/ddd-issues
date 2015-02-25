@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.jayway.restassured.http.ContentType;
@@ -18,7 +19,7 @@ import ddd.domain.IssueNumber;
 import ddd.domain.IssueRepository;
 import ddd.domain.ProductVersion;
 
-public class IssueResourceRenamingTest extends EndToEndTest {
+public class IssueResourceRenaming extends EndToEndTest {
 
     @Inject
     private IssueRepository repository;
@@ -26,6 +27,14 @@ public class IssueResourceRenamingTest extends EndToEndTest {
     @PersistenceContext(unitName="issues-unit")
     private EntityManager entityManager;
 
+    @Before
+    public void setUp() {
+
+        doInTransaction(() -> {
+            entityManager.createQuery("delete from Issue").executeUpdate();
+        });
+    }
+    
     @Test
     public void shouldGetIssuesByIssueNumber() {
         

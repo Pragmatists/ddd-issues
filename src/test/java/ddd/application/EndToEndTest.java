@@ -22,11 +22,15 @@ import ddd.infrastructure.TomEEApplication;
 public abstract class EndToEndTest {
 
     private static TomEEApplication application;
-
+    private static int level = 0;
+    
     @BeforeClass
     public static void startServer() {
-        application = TomEEApplication.application();
-        application.start();
+        if(level == 0){
+            application = TomEEApplication.application();
+            application.start();
+        }
+        level++;
     }
 
     @BeforeClass
@@ -63,7 +67,11 @@ public abstract class EndToEndTest {
     
     @AfterClass
     public static void stopServer() {
-        application.stop();
+        level--;
+        if(level == 0){
+            application.stop();
+            application.await();
+        }
     }
 
 }

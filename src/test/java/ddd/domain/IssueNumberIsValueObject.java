@@ -30,7 +30,7 @@ public class IssueNumberIsValueObject extends ValueObjectContractTest {
         String representation = issueNumber.toString();
         
         // then:
-        assertThat(representation).isEqualTo("Issue #42");
+        assertThat(representation).isEqualTo("42");
     }
     
 }
