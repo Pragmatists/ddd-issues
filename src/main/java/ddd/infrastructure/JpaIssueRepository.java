@@ -12,7 +12,7 @@ import ddd.domain.Issues;
 
 public class JpaIssueRepository implements IssueRepository {
 
-    @PersistenceContext(unitName="issues-unit") 
+    @PersistenceContext 
     private EntityManager entityManager;
 
     public JpaIssueRepository() {

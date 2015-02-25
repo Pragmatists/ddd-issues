@@ -19,11 +19,9 @@ import com.jayway.restassured.response.Response;
 
 import ddd.application.IssueResource.ExistingIssueJson;
 import ddd.domain.Issue;
-import ddd.domain.IssueFactory;
 import ddd.domain.IssueNumber;
 import ddd.domain.IssueRepository;
 import ddd.domain.ParticipantID;
-import ddd.domain.ProductID;
 import ddd.domain.ProductVersion;
 
 public class IssuesResourceListing extends EndToEndTest {
@@ -31,10 +29,7 @@ public class IssuesResourceListing extends EndToEndTest {
     @Inject
     private IssueRepository repository;
 
-    @Inject
-    private IssueFactory factory;
-
-    @PersistenceContext(unitName="issues-unit")
+    @PersistenceContext
     private EntityManager entityManager;
 
     @Before
@@ -55,8 +50,9 @@ public class IssuesResourceListing extends EndToEndTest {
         });
 
         // when:
-        Response response = given().contentType(ContentType.JSON)
-                .get("/app/issues").thenReturn();
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .get("/app/issues");
 
         // then:
         assertThat(response.getStatusCode()).isEqualTo(200);
@@ -79,7 +75,7 @@ public class IssuesResourceListing extends EndToEndTest {
         
         // when:
         Response response = given().contentType(ContentType.JSON)
-                .get("/app/issues/345").thenReturn();
+                .get("/app/issues/345");
         
         // then:
         assertThat(response.getStatusCode()).isEqualTo(200);
@@ -106,8 +102,10 @@ public class IssuesResourceListing extends EndToEndTest {
         }
     }
 
+    private int uniqueId = 1;
+    
     private Issue anIssue(String title) {
-        return factory.newBug(title, "Description of issue #1", new ProductVersion(new ProductID("buggy-app"), "1.4.81"));
+        return new Issue(new IssueNumber(uniqueId++), title, ProductVersion.of("buggy-app 1.4.81"), aDate("2014-10-11 20:00:12"));
     }
 
 }

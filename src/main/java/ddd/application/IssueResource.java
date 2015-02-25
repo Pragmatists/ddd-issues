@@ -1,6 +1,5 @@
 package ddd.application;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -22,11 +21,9 @@ import javax.ws.rs.core.Response;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 import ddd.domain.Issue;
-import ddd.domain.IssueFactory;
 import ddd.domain.IssueNumber;
 import ddd.domain.IssueRepository;
 import ddd.domain.Issues;
-import ddd.domain.ProductID;
 import ddd.domain.ProductVersion;
 
 @Stateless
@@ -36,25 +33,10 @@ import ddd.domain.ProductVersion;
 public class IssueResource {
 
     @Inject
-    private IssueFactory factory;
-
-    @Inject
     private IssueRepository repository;
 
     @Inject
     private Issues issues;
-
-    @POST
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Response create(NewIssueJson json) throws URISyntaxException {
-        
-        ProductVersion version = new ProductVersion(new ProductID(json.occurredIn.product), json.occurredIn.version);
-        
-        Issue issue = factory.newBug(json.title, json.description, version);
-        repository.store(issue);
-        
-        return Response.created(new URI(String.format("/issues/%s", issue.number()))).build();
-    }
 
     @GET
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -83,22 +65,6 @@ public class IssueResource {
         Issue issue = repository.load(new IssueNumber(issueNumber));
         issue.renameTo(json.newTitle);
         return Response.ok().build();
-    }
-    
-    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-    static class NewIssueJson {
-
-        String title = "";
-        String description = "";
-        VersionJson occurredIn = new VersionJson();
-
-        public NewIssueJson() {}
-
-        public NewIssueJson(Issue issue) {
-            title = issue.title();
-            description = issue.description();
-            occurredIn = new VersionJson(issue.occuredIn());
-        }
     }
 
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)

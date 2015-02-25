@@ -24,7 +24,7 @@ public class IssueResourceRenaming extends EndToEndTest {
     @Inject
     private IssueRepository repository;
 
-    @PersistenceContext(unitName="issues-unit")
+    @PersistenceContext
     private EntityManager entityManager;
 
     @Before
