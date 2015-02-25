@@ -1,11 +1,5 @@
 package ddd.domain;
 
-import java.util.UUID;
-
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
-@Entity
 public class RelatedIssue {
     
     public enum RelationshipType {
@@ -13,9 +7,6 @@ public class RelatedIssue {
         REFERS_TO, IS_REFERRED_BY,
         BLOCKS, IS_BLOCKED_BY
     }
-
-    @Id
-    private String id = UUID.randomUUID().toString();
 
     private IssueNumber related;
     private RelationshipType type;

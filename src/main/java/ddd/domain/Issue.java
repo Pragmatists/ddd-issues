@@ -4,26 +4,14 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-
 import org.apache.commons.lang3.Validate;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
 import ddd.infrastructure.DateUserType;
-import ddd.infrastructure.IssueNumberType;
-import ddd.infrastructure.ParticipantIDType;
-import ddd.infrastructure.ProductVersionType;
 
-@Entity
 @TypeDefs({
-    @TypeDef(typeClass = IssueNumberType.class, defaultForType=IssueNumber.class),
-    @TypeDef(typeClass = ProductVersionType.class, defaultForType=ProductVersion.class),
-    @TypeDef(typeClass = ParticipantIDType.class, defaultForType=ParticipantID.class),
     @TypeDef(name = "dateUserType", typeClass = DateUserType.class, defaultForType=Date.class)
 })
 public class Issue {
@@ -73,7 +61,6 @@ public class Issue {
         FIXED, DUPLICATE, WONT_FIX, CANNOT_REPRODUCE
     }
 
-    @Id
     private IssueNumber number;
     private String title;
     private String description;
@@ -88,7 +75,6 @@ public class Issue {
     private ProductVersion fixVersion;
     private ParticipantID assignee;
 
-    @OneToMany(cascade=CascadeType.ALL)
     private Set<RelatedIssue> relatedIssues = new HashSet<>();
     
     protected Issue() {

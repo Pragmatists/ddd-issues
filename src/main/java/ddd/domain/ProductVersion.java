@@ -2,12 +2,11 @@ package ddd.domain;
 
 import static java.lang.String.format;
 
-import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ProductVersion implements Serializable{
-
+public class ProductVersion {
+    
     private static final Pattern PATTERN= Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)");
 
     private ProductID product;
