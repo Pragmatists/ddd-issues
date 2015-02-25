@@ -18,7 +18,7 @@
        	</thead>
         <tr ng-repeat="issue in issues">
             <td><span class="pull-right">{{issue.number}}</span></td>
-            <td><a ng-href="#edit/{{issue.number}}">{{issue.title}}</a></td>
+            <td><a ng-href="#/issues/{{issue.number}}">{{issue.title}}</a></td>
             <td>{{issue.occurredIn.product}} {{issue.occurredIn.version}}</td>
             <td><span class="label {{issue.status}}">{{issue.status}}</span></td> 
             <td>{{issue.assignee}}</td>

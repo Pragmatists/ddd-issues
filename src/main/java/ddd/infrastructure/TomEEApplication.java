@@ -23,7 +23,7 @@ public class TomEEApplication {
         archive.addAsWebResource("static/index.html", "index.html");
         archive.addAsWebResource("static/new.html", "new.html");
         archive.addAsWebResource("static/list.html", "list.html");
-        archive.addAsWebResource("static/edit.html", "edit.html");
+        archive.addAsWebResource("static/show.html", "show.html");
         archive.addAsManifestResource("META-INF/persistence.xml", "persistence.xml");
     }
 

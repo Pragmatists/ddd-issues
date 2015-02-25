@@ -1,7 +1,7 @@
 angular.module('ddd-issues', ['ngRoute'])
     .config(function ($routeProvider) {
         $routeProvider
-            .when('/list', {
+            .when('/issues/', {
                 templateUrl: '/app/list.html',
                 controller: 'IssuesCtrl'
             })
@@ -9,12 +9,12 @@ angular.module('ddd-issues', ['ngRoute'])
                 templateUrl: '/app/new.html',
                 controller: 'NewIssueCtrl'
             })
-            .when('/edit/:issueNumber', {
-                templateUrl: '/app/edit.html',
+            .when('/issues/:issueNumber', {
+                templateUrl: '/app/show.html',
                 controller: 'EditIssueCtrl'
             })
             .otherwise({
-                redirectTo: '/list'
+                redirectTo: '/issues/'
             });
     })
     .constant('products', ['acme', 'buggy-app'])
