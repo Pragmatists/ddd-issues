@@ -41,23 +41,24 @@ public class DemoData {
         renaming.close();        
         repository.store(renaming);
         
-        Issue assigning = newIssue(2,
-                "Assigning participant", 
-                "It should be possible to assign participat to Issue", 
-                ProductVersion.of("ddd-issues 0.5.0"),
-                aDate("2015-01-01 21:44:00")
-            );
-        assigning.assignTo(new ParticipantID("bart.simpson"));
-        repository.store(assigning);
-        
-        Issue closing = newIssue(3,
-                "Closing issue", 
-                "If issue is already resolved it should be possible to close issue", 
+        Issue closing = newIssue(2,
+                "Creating new issue", 
+                "It should be possible to create a new issue. New issue is created by providing issue title and product version which " +
+                "is affected by this issue. After successfull creation, issue details should be displayed.", 
                 ProductVersion.of("ddd-issues 0.5.0"),
                 aDate("2015-01-02 10:00:12")
             );        
         repository.store(closing);
 
+        Issue assigning = newIssue(3,
+                "Assigning participant", 
+                "It should be possible to assign participat to Issue", 
+                ProductVersion.of("ddd-issues 0.5.0"),
+                aDate("2015-01-01 21:44:00")
+                );
+        assigning.assignTo(new ParticipantID("bart.simpson"));
+        repository.store(assigning);
+        
         Issue fixing = newIssue(4,
                 "Providing fix version for issue", 
                 "When fixing issue it should be possible to assign product version in which it was fixed", 
@@ -65,6 +66,16 @@ public class DemoData {
                 aDate("2015-01-21 17:24:00")
             );        
         repository.store(fixing);
+
+        Issue releaseNotes = newIssue(5,
+                "Generate release notes for given version range", 
+                "It should be possible to generate release notes for given version range. Release notes should contain titles of every " + 
+                "tickets fixed in given version range. Titles should be grouped by versions. Versions should be displayed in descending order.", 
+                ProductVersion.of("ddd-issues 0.5.0"),
+                aDate("2015-01-24 15:33:01")
+            );        
+        repository.store(releaseNotes);
+
     }
 
     private Date aDate(String date) {

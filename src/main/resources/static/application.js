@@ -5,10 +5,6 @@ angular.module('ddd-issues', ['ngRoute'])
                 templateUrl: '/app/list.html',
                 controller: 'IssuesCtrl'
             })
-            .when('/new', {
-                templateUrl: '/app/new.html',
-                controller: 'NewIssueCtrl'
-            })
             .when('/issues/:issueNumber', {
                 templateUrl: '/app/show.html',
                 controller: 'EditIssueCtrl'
@@ -17,8 +13,14 @@ angular.module('ddd-issues', ['ngRoute'])
                 redirectTo: '/issues/'
             });
     })
-    .constant('products', ['acme', 'buggy-app'])
-    .constant('versions', ['1.0.0', '1.2.3'])
+    .constant('versions', [
+        { product: 'ddd-issues', version: '0.5.0'},
+        { product: 'ddd-issues', version: '0.4.0'},
+        { product: 'ddd-issues', version: '0.3.0'},
+        { product: 'buggy-app', version: '1.0.0'},
+        { product: 'buggy-app', version: '1.2.0'},
+        { product: 'buggy-app', version: '1.2.1'},
+        { product: 'buggy-app', version: '1.2.4'}])
     .controller("IssuesCtrl", function ($scope, $http) {
 
         $http.get('/app/issues')
@@ -45,17 +47,18 @@ angular.module('ddd-issues', ['ngRoute'])
     	};
 
     })
-    .controller("NewIssueCtrl", function ($scope, $http, $location, versions, products) {
+    .controller("NewIssueCtrl", function ($scope, $http, $location, versions) {
 
         $scope.newIssue = {};
-
         $scope.versions = versions;
-        $scope.products = products;
 
         $scope.createIssue = function () {
+        	
+        	console.log('Creating issue: ', $scope.newIssue);
+        	
             $http.post('/app/issues', $scope.newIssue)
-                .success(function () {
-                    $location.path('/list');
+                .success(function (data, status, headers) {
+                    $location.path('/issues/' + headers['Location']);
                 });
         };
 
