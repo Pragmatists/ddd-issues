@@ -2,6 +2,7 @@ package ddd.domain;
 
 import java.io.Serializable;
 
+
 public class IssueNumber implements Serializable, Comparable<IssueNumber> {
 
     private int value;

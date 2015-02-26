@@ -1,5 +1,6 @@
 package ddd.domain;
 
+
 public class RelatedIssue {
     
     public enum RelationshipType {

@@ -1,8 +1,7 @@
 package ddd.domain;
 
-import java.io.Serializable;
 
-public class ParticipantID implements Serializable {
+public class ParticipantID {
 
     private final String value;
 
