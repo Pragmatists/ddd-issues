@@ -36,13 +36,7 @@ public abstract class EndToEndTest {
     @BeforeClass
     public static void setupJsonSerialization() {
         RestAssured.config = RestAssuredConfig.config().objectMapperConfig(objectMapperConfig().jackson2ObjectMapperFactory(
-                new Jackson2ObjectMapperFactory() {
-                    @SuppressWarnings("rawtypes")
-                    @Override
-                    public ObjectMapper create(Class aClass, String s) {
-                        return objectMapper();
-                    }
-                }
+                (aClass, s) -> objectMapper()
         ));
     }
 
