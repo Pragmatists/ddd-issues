@@ -13,7 +13,6 @@ import ddd.domain.Issues;
 import ddd.domain.ParticipantID;
 import ddd.domain.ProductVersion;
 
-@Stateless
 public class JpaIssues implements Issues {
 
     @PersistenceContext(unitName="issues-unit")
