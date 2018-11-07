@@ -1,71 +1,47 @@
 package ddd.application;
 
-import static com.jayway.restassured.config.ObjectMapperConfig.*;
-import static ddd.infrastructure.CustomJacksonProvider.*;
-
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-
-import org.apache.deltaspike.core.api.provider.BeanProvider;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.config.RestAssuredConfig;
-import com.jayway.restassured.mapper.factory.Jackson2ObjectMapperFactory;
+import ddd.infrastructure.CustomJacksonProvider;
+import org.junit.BeforeClass;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import ddd.infrastructure.TomEEApplication;
+import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfig;
 
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public abstract class EndToEndTest {
 
-    private static TomEEApplication application;
-    private static int level = 0;
-    
-    @BeforeClass
-    public static void startServer() {
-        if(level == 0){
-            application = TomEEApplication.application();
-            application.start();
-        }
-        level++;
+    @Autowired
+    private TransactionalWrapper wrapper;
+
+    protected void doInTransaction(Runnable operation) {
+        wrapper.run(operation);
     }
 
     @BeforeClass
     public static void setupJsonSerialization() {
         RestAssured.config = RestAssuredConfig.config().objectMapperConfig(objectMapperConfig().jackson2ObjectMapperFactory(
-                (aClass, s) -> objectMapper()
+                (aClass, s) -> {
+                    return new CustomJacksonProvider().objectMapper();
+                }
         ));
     }
 
-    @Before
-    public void injectFields() {
-        BeanProvider.injectFields(this);
-    }
 
-    protected void doInTransaction(Runnable operation) {
-        TransactionalWrapper wrapper = BeanProvider.getContextualReference(TransactionalWrapper.class);
-        wrapper.run(operation);
-    }
-
-    @Stateless
+    @Component
     public static class TransactionalWrapper {
-        
-        @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+
+        @Transactional(propagation = Propagation.REQUIRES_NEW)
         public void run(Runnable operation){
             operation.run();
         }
     }
-    
-    @AfterClass
-    public static void stopServer() {
-        level--;
-        if(level == 0){
-            application.stop();
-            application.await();
-        }
-    }
+
 
 }

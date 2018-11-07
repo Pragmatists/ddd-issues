@@ -2,7 +2,6 @@ package ddd.infrastructure;
 
 import java.util.Iterator;
 
-import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -12,10 +11,13 @@ import ddd.domain.Issue;
 import ddd.domain.Issues;
 import ddd.domain.ParticipantID;
 import ddd.domain.ProductVersion;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class JpaIssues implements Issues {
 
-    @PersistenceContext(unitName="issues-unit")
+    @Autowired
     private EntityManager entityManager;
 
     @Override

@@ -2,13 +2,13 @@ package ddd.application;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
 import java.util.Date;
 
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,23 +18,19 @@ import ddd.domain.Issue;
 import ddd.domain.IssueNumber;
 import ddd.domain.IssueRepository;
 import ddd.domain.ProductVersion;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.junit4.SpringRunner;
 
-public class IssueResourceRenaming extends EndToEndTest {
+@RunWith(SpringRunner.class)
+public class IssueResourceRenamingTest extends IssueResourceBaseTest {
 
-    @Inject
+    @Autowired
     private IssueRepository repository;
 
-    @PersistenceContext
+    @Autowired
     private EntityManager entityManager;
 
-    @Before
-    public void setUp() {
-
-        doInTransaction(() -> {
-            entityManager.createQuery("delete from Issue").executeUpdate();
-        });
-    }
-    
     @Test
     public void shouldGetIssuesByIssueNumber() {
         
@@ -45,7 +41,7 @@ public class IssueResourceRenaming extends EndToEndTest {
             
         });
         
-        IssueResource.RenameIssueJson request = new IssueResource.RenameIssueJson("New Issue Title");
+        IssueResource.RenameIssueRequestJson request = new IssueResource.RenameIssueRequestJson("New Issue Title");
         
         // when:
         given()
@@ -59,7 +55,27 @@ public class IssueResourceRenaming extends EndToEndTest {
         Issue load = repository.load(new IssueNumber(345));
         assertThat(load.title()).isEqualTo("New Issue Title");
     }
-    
+
+
+    @Test
+    public void shouldReturnNotFoundWhenIssueNotExistForRename() {
+
+        IssueResource.RenameIssueRequestJson request = new IssueResource.RenameIssueRequestJson("New Issue Title");
+
+        // when:
+        given()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .post("/app/issues/345/rename").
+                then()
+                .statusCode(404)
+                .body("errorMsg", equalTo("Issue with number='345' does not exist!"));
+
+    }
+
+
+
+
     // --
     
     private Issue anIssue(IssueNumber number, String title) {

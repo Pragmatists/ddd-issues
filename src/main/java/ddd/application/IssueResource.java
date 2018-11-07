@@ -1,80 +1,89 @@
 package ddd.application;
 
-import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
-import ddd.domain.Issue;
-import ddd.domain.IssueNumber;
-import ddd.domain.IssueRepository;
-import ddd.domain.Issues;
-import ddd.domain.ProductVersion;
+import ddd.domain.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
-@Stateless
-@Path("/issues")
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
+@RestController
+@RequestMapping(path = "/issues")
 public class IssueResource {
 
-    @Inject
+    @Autowired
     private IssueRepository repository;
 
-    @Inject
+    @Autowired
     private Issues issues;
 
-    @GET
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Response list() {
+    @GetMapping
+    @Transactional(readOnly = true)
+    public IssuesJson list() {
         
         IssuesJson json = new IssuesJson();
         issues.forEach(issue -> json.add(new ExistingIssueJson(issue)));
         
-        return Response.ok(json).build();
+        return json;
     }
 
-    @GET
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    @Path("/{issueNumber}")
-    public Response get(@PathParam("issueNumber") Integer issueNumber) throws URISyntaxException {
+    @GetMapping("/{issueNumber}")
+    @Transactional(readOnly = true)
+    public ExistingIssueJson get(@PathVariable("issueNumber") Integer issueNumber) {
         
         Issue load = repository.load(new IssueNumber(issueNumber));
-        return Response.ok(new ExistingIssueJson(load)).build();
+        return new ExistingIssueJson(load);
     }
 
-    @POST
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    @Path("/{issueNumber}/rename")
-    public Response rename(@PathParam("issueNumber") Integer issueNumber, RenameIssueJson json) throws URISyntaxException {
-        
+
+    @GetMapping("/releaseNotes")
+    @Transactional(readOnly = true)
+    public ReleaseNotesReportResponseJson getReleaseNotes(@RequestParam("from") String from, @RequestParam("to") String to) {
+
+        ReleaseNotesReportResponseJson json = new ReleaseNotesReportResponseJson();
+
+        repository.loadAll().inStatus(Issue.Status.CLOSED).forEach(issue -> {
+            json.addIssue(issue.number(), issue.fixVersion(), issue.title());
+        });
+        //Issue load = repository.load(new IssueNumber(issueNumber));
+        return json;
+    }
+
+    @Transactional
+    @PostMapping(path="/{issueNumber}/rename")
+    public void rename(@PathVariable("issueNumber") Integer issueNumber, @RequestBody RenameIssueRequestJson json) {
+
         Issue issue = repository.load(new IssueNumber(issueNumber));
         issue.renameTo(json.newTitle);
-        return Response.ok().build();
     }
 
+    @Transactional
+    @PostMapping(path="/{issueNumber}/assignParticipant")
+    public void rename(@PathVariable("issueNumber") Integer issueNumber, @RequestBody AssignExistingPaticipantRequestJson json) {
+
+        Issue issue = repository.load(new IssueNumber(issueNumber));
+        issue.assignTo(new ParticipantID(json.participantId));
+    }
+
+
+
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-    static class RenameIssueJson {
+    static class RenameIssueRequestJson {
         
         String newTitle = "";
         
-        public RenameIssueJson() {}
-        
-        public RenameIssueJson(String newTitle) {
+        public RenameIssueRequestJson() {}
+
+        public RenameIssueRequestJson(String newTitle) {
+            this();
             this.newTitle = newTitle;
         }
     }
@@ -128,5 +137,37 @@ public class IssueResource {
 
     private static String format(Date date) {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
+    }
+
+    public static class AssignExistingPaticipantRequestJson {
+
+        private String participantId;
+
+        private AssignExistingPaticipantRequestJson() {
+        }
+
+        public AssignExistingPaticipantRequestJson(String participantId) {
+            this();
+            this.participantId = participantId;
+        }
+
+    }
+
+    static class ReleaseNotesReportResponseJson extends ArrayList<ReleaseNoteRow> {
+        public void addIssue(IssueNumber number, ProductVersion productVersion, String title) {
+            add(new ReleaseNoteRow(number,productVersion,title));
+        }
+    }
+
+    private static class ReleaseNoteRow {
+        String number;
+        String version;
+        String title;
+
+        public ReleaseNoteRow(IssueNumber number, ProductVersion productVersion, String title) {
+            this.number = number.toString();
+            this.version = productVersion != null ? productVersion.version() : "";
+            this.title = title;
+        }
     }
 }

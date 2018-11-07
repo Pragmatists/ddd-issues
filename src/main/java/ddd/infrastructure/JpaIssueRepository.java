@@ -1,22 +1,21 @@
 package ddd.infrastructure;
 
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import ddd.domain.Issue;
-import ddd.domain.IssueNumber;
-import ddd.domain.IssueRepository;
-import ddd.domain.Issues;
+import ddd.domain.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class JpaIssueRepository implements IssueRepository {
 
-    @PersistenceContext 
+    @Autowired
     private EntityManager entityManager;
-
-    public JpaIssueRepository() {
-    }
 
     public JpaIssueRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
@@ -43,7 +42,33 @@ public class JpaIssueRepository implements IssueRepository {
 
     @Override
     public Issues loadAll() {
-        return null;
+
+        return new Issues() {
+            private Issue.Status[] statuses = Issue.Status.values();
+
+            @Override
+            public Issues forVersion(ProductVersion version) {
+                return this;
+            }
+
+            @Override
+            public Issues reportedBy(ParticipantID reporter) {
+                return this;
+            }
+
+            @Override
+            public Issues inStatus(Issue.Status... statuses) {
+                this.statuses = statuses;
+                return this;
+            }
+
+            @Override
+            public Iterator<Issue> iterator() {
+                return entityManager.createQuery("from Issue i where i.status in :statuses", Issue.class)
+                        .setParameter("statuses", Arrays.asList(statuses))
+                        .getResultList().iterator();
+            }
+        };
     }
 
 }

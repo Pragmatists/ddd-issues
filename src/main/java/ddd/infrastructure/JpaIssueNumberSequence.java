@@ -1,16 +1,16 @@
 package ddd.infrastructure;
 
-import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 import ddd.domain.IssueNumber;
 import ddd.domain.IssueNumberSequence;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-@Stateless
+@Service
 public class JpaIssueNumberSequence implements IssueNumberSequence {
 
-    @PersistenceContext(unitName="issues-unit")
+    @Autowired
     private EntityManager entityManager;
 
     @Override

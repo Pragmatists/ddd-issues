@@ -1,10 +1,10 @@
 package ddd.domain;
 
-import javax.ejb.ApplicationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 public interface IssueRepository {
 
-    @ApplicationException
     public class IssueAlreadyExists extends IllegalArgumentException {
 
         public IssueAlreadyExists(IssueNumber number) {
@@ -12,7 +12,6 @@ public interface IssueRepository {
         }
     }
 
-    @ApplicationException
     public class IssueNotFound extends IllegalArgumentException {
         
         public IssueNotFound(IssueNumber number) {

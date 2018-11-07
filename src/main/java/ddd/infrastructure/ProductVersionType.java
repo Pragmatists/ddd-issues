@@ -6,6 +6,7 @@ import java.sql.SQLException;
 
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.type.StandardBasicTypes;
 import org.hibernate.usertype.UserType;
 
@@ -23,7 +24,7 @@ public class ProductVersionType extends ValueObjectType implements UserType {
     }
 
     @Override
-    public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor session,
+    public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor session,
                               Object owner) throws HibernateException, SQLException {
         
         String value = rs.getString(names[0]);
@@ -32,7 +33,7 @@ public class ProductVersionType extends ValueObjectType implements UserType {
 
     @Override
     public void nullSafeSet(PreparedStatement st, Object value, int index,
-                            SessionImplementor session) throws HibernateException, SQLException {
+                            SharedSessionContractImplementor session) throws HibernateException, SQLException {
         
         String representation = value != null ? value.toString() : null;
         if (null != representation) {

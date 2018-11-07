@@ -5,27 +5,29 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.inject.Inject;
 
 import ddd.domain.Issue;
 import ddd.domain.IssueNumber;
 import ddd.domain.IssueRepository;
 import ddd.domain.ParticipantID;
 import ddd.domain.ProductVersion;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-@Singleton
-@Startup
+@Component
+@Profile("demo")
 public class DemoData {
 
-    @Inject
+    @Autowired
     private IssueRepository repository;
     
-    @PostConstruct
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    @EventListener(ContextRefreshedEvent.class)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void populateDemo(){
 
         System.out.println("-- Populating demo data");

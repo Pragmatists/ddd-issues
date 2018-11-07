@@ -12,18 +12,11 @@ import java.util.Date;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
-import org.jboss.arquillian.transaction.api.annotation.Transactional;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import ddd.application.IssuesApplication;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 
 import ddd.domain.Issue;
 import ddd.domain.IssueNumber;
@@ -31,26 +24,20 @@ import ddd.domain.IssueRepository;
 import ddd.domain.ParticipantID;
 import ddd.domain.ProductID;
 import ddd.domain.ProductVersion;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
-@RunWith(Arquillian.class)
-@Transactional(value=TransactionMode.ROLLBACK)
-public class JpaIssueRepositoryTest {
+@RunWith(SpringRunner.class)
+@DataJpaTest
+@ContextConfiguration(classes = IssuesApplication.class)
+public class JpaIssueRepositoryTest extends IssueRepositoryContractTest {
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-    
-    @PersistenceContext
+    @Autowired
     private EntityManager entityManager;
-
-    private IssueRepository repository;
-    
-    @Deployment
-    public static JavaArchive deployment(){
-        return ShrinkWrap.create(JavaArchive.class)
-                .addAsManifestResource("META-INF/persistence.xml", "persistence.xml")
-                .addAsResource("log4j.properties")
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
-    }
 
     @Before
     public void setUp() {
@@ -64,80 +51,7 @@ public class JpaIssueRepositoryTest {
             }
         };
     }
-    
-    @Test
-    public void shouldStoreAndLoadIssue() throws Exception {
 
-        // given:
-        Issue issue = anIssue(new IssueNumber(123));
 
-        // when:
-        repository.store(issue);
-        
-        // then:
-        Issue loaded = repository.load(new IssueNumber(123));
-        assertThat(loaded)
-            .usingComparator(fieldByField(Issue.class))
-            .describedAs("%s vs %s", reflectionToString(loaded, MULTI_LINE_STYLE), reflectionToString(issue, MULTI_LINE_STYLE))
-            .isEqualTo(issue);
-    }
 
-    @Test
-    public void shouldFailMeaningfullyIfIssueWithGivenNumberAlreadyExist() throws Exception {
-
-        // expect:
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Issue with number='123' already exists!");
-        
-        // given:
-        issueAlreadyExists(new IssueNumber(123));
-
-        // when:
-        repository.store(anIssue(new IssueNumber(123)));
-    }
-
-    @Test
-    public void shouldFailMeaningfullyIfIssueWithGivenNumberDoesNotExist() throws Exception {
-        
-        // expect:
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Issue with number='404' does not exist!");
-            
-        // when:
-        repository.load(new IssueNumber(404));
-    }
-
-    // --
-
-    private Issue anIssue(IssueNumber issueNumber) {
-        Issue issue = new Issue(issueNumber, "System does not work!", aProductVersion(), aDate());
-        issue.assignTo(new ParticipantID("homer.simpson"));
-        issue.fixedIn(aProductVersion("4.5.6"));
-        issue.updateDescription("This is very very long description of this issue!");
-        issue.referTo(new IssueNumber(888));
-        issue.blocks(new IssueNumber(777));
-        return issue;
-    }
-    
-    private Issue issueAlreadyExists(IssueNumber issueNumber) {
-        Issue issue = anIssue(issueNumber);
-        repository.store(issue);
-        return issue;
-    }
-    
-    private Date aDate() {
-        try {
-            return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2014-10-11 12:34:56");
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private ProductVersion aProductVersion() {
-        return aProductVersion("1.2.3");
-    }
-
-    private ProductVersion aProductVersion(String version) {
-        return new ProductVersion(new ProductID("buggy-app"), version);
-    }
 }

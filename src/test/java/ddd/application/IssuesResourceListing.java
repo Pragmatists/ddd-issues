@@ -7,7 +7,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -26,7 +25,6 @@ import ddd.domain.ProductVersion;
 
 public class IssuesResourceListing extends EndToEndTest {
 
-    @Inject
     private IssueRepository repository;
 
     @PersistenceContext

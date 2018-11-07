@@ -5,7 +5,7 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.junit.runner.RunWith;
 
 @RunWith(Suite.class)
-@SuiteClasses(value={IssuesResourceListing.class, IssueResourceRenaming.class})
+@SuiteClasses(value={IssuesResourceListing.class, IssueResourceRenamingTest.class})
 public class EndToEndSuiteTest extends EndToEndTest {
 
 }

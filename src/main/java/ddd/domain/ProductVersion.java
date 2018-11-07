@@ -102,4 +102,8 @@ public class ProductVersion implements Serializable{
         
         return new ProductVersion(new ProductID(product), version);
     }
+
+    public String version() {
+        return format("%s.%s.%s", majorVersion, minorVersion, buildNumber);
+    }
 }
